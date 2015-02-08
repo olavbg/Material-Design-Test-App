@@ -12,5 +12,6 @@
     <string name="drawer_close">Close</string>
     <string name="search_movies">Search Movies</string>
     <string name="icon">Icon</string>
+    <string name="title_activity_login">MyMoovs</string>
 
 </resources>
