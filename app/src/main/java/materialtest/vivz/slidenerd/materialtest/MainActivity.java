@@ -1,33 +1,20 @@
 package materialtest.vivz.slidenerd.materialtest;
 
-import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import materialtest.vivz.slidenerd.materialtest.utils.GlobalVars;
-import materialtest.vivz.slidenerd.materialtest.utils.ToastHelper;
 
-import static materialtest.vivz.slidenerd.materialtest.utils.ToastHelper.showToast;
+import static materialtest.vivz.slidenerd.materialtest.utils.Helper.saveToPreferences;
+import static materialtest.vivz.slidenerd.materialtest.utils.Helper.showToast;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -69,6 +56,11 @@ public class MainActivity extends ActionBarActivity {
         if (id == R.id.action_settings) {
             Toast.makeText(this, "Hey you just hit " + item.getTitle(), Toast.LENGTH_SHORT).show();
             return true;
+        }else if (id == R.id.action_logOut){
+            saveToPreferences(GlobalVars.PREF_KEY_LOGGED_IN_USER, "");
+            GlobalVars.loggedInUser = null;
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
         }
 
         return super.onOptionsItemSelected(item);

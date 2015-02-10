@@ -4,13 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -28,50 +25,32 @@ import materialtest.vivz.slidenerd.materialtest.utils.Helper;
 
 import static android.text.TextUtils.isEmpty;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.hideProgressDialog;
-import static materialtest.vivz.slidenerd.materialtest.utils.Helper.readFromPreferences;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.saveToPreferences;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.showToast;
 
 
-public class LoginActivity extends ActionBarActivity {
+public class RegisterActivity extends ActionBarActivity {
     EditText txtUsername;
+    EditText txtEmail;
     EditText txtPassword;
+    EditText txtRepeatPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-
+        setContentView(R.layout.activity_register);
+        
         txtUsername = (EditText) findViewById(R.id.txtUsername);
+        txtEmail = (EditText) findViewById(R.id.txtEmail);
         txtPassword = (EditText) findViewById(R.id.txtPassword);
-
-        Helper.init(this);
-        GlobalVars.init(this);
-
-        final Bruker loggedInUser = getLoggedInUser();
-        if (loggedInUser != null){
-            loginUser(loggedInUser);
-        }
-
-        txtUsername.setOnEditorActionListener(getOnNextEvent());
-        txtPassword.setOnEditorActionListener(getOnGoEvent());
+        txtRepeatPassword = (EditText) findViewById(R.id.txtRepeatPassword);
     }
 
-    private Bruker getLoggedInUser() {
-        final String loggedInUserJsonString = readFromPreferences(GlobalVars.PREF_KEY_LOGGED_IN_USER, "");
-        if (!isEmpty(loggedInUserJsonString)){
-            final Bruker loggedInUser = GlobalVars.gson.fromJson(loggedInUserJsonString, Bruker.class);
-            if (loggedInUser != null && loggedInUser.getBrukerID() != -1){
-                return loggedInUser;
-            }
-        }
-        return null;
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_login, menu);
+        getMenuInflater().inflate(R.menu.menu_register, menu);
         return true;
     }
 
@@ -90,17 +69,25 @@ public class LoginActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void login(View view) {
-        login();
+    public void goBack(View view) {
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
     }
-    
-    private void login(){
+
+    public void registerNewAccount(View view) {
         final String username = txtUsername.getText().toString().trim();
+        final String email = txtEmail.getText().toString().trim();
         final String password = txtPassword.getText().toString().trim();
+        final String repeatPassword = txtRepeatPassword.getText().toString().trim();
 
         if (isEmpty(username)) {
             showToast("Please enter a username");
             txtUsername.requestFocus();
+            return;
+        }
+        if (isEmpty(email)) {
+            showToast("Please enter a email adress");
+            txtEmail.requestFocus();
             return;
         }
         if (isEmpty(password)) {
@@ -108,19 +95,33 @@ public class LoginActivity extends ActionBarActivity {
             txtPassword.requestFocus();
             return;
         }
+        if (password.length() < 6){
+            showToast("Your password must contain at least 6 characters..");
+            txtPassword.requestFocus();
+            return;
+        }
+        if (isEmpty(repeatPassword)) {
+            showToast("Please repeat your password");
+            txtRepeatPassword.requestFocus();
+            return;
+        }
+        if (!password.equals(repeatPassword)){
+            showToast("Your password and repeated passwords do not match..");
+            return;
+        }
 
         // Adding request to request queue
-        Helper.showProgressDialog("Signing in..");
-        GlobalVars.requestQueue.add(getLoginRequest(username, password));
+        Helper.showProgressDialog("Registering..");
+        GlobalVars.requestQueue.add(getRegisterRequest(username, email, password));
     }
 
-    public StringRequest getLoginRequest(final String username, final String password) {
+    public StringRequest getRegisterRequest(final String username, final String email, final String password) {
         return new StringRequest(Request.Method.POST,
                 API_CONST.LOGIN_URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Log.d("LOGIN RESPONSE", response);
+                        Log.d("REGISTRATION RESPONSE", response);
                         final Bruker bruker = GlobalVars.gson.fromJson(response, Bruker.class);
                         if (isEmpty(bruker.getErr_msg())) {
                             loginUser(bruker);
@@ -132,7 +133,7 @@ public class LoginActivity extends ActionBarActivity {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                VolleyLog.d("LOGIN ERROR", "Error: " + error.getMessage());
+                VolleyLog.d("REGISTRATION ERROR", "Error: " + error.getMessage());
                 showToast("Ops! Something went wrong when connecting to the cloud! Please try again later..");
                 // hide the progress dialog
                 hideProgressDialog();
@@ -141,10 +142,10 @@ public class LoginActivity extends ActionBarActivity {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
-                params.put("tag", API_CONST.LOGIN_TAG);
+                params.put("tag", API_CONST.REGISTER_TAG);
                 params.put("username", username);
                 params.put("password", password);
-                params.put("hash", "true");
+                params.put("email", email);
                 return params;
             }
         };
@@ -155,42 +156,5 @@ public class LoginActivity extends ActionBarActivity {
         startActivity(new Intent(getApplicationContext(), MainActivity.class));
         saveToPreferences(GlobalVars.PREF_KEY_LOGGED_IN_USER, GlobalVars.gson.toJson(bruker));
         finish();
-    }
-
-    public void forgotPassword(View view) {
-        showToast("Not implemented yet..");
-        //TODO: Fortsette her!
-    }
-
-    public void registerNewAccount(View view) {
-        startActivity(new Intent(this,RegisterActivity.class));
-    }
-
-    public TextView.OnEditorActionListener getOnGoEvent() {
-        return new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_GO) {
-                    login();
-                    handled = true;
-                }
-                return handled;
-            }
-        };
-    }
-
-    public TextView.OnEditorActionListener getOnNextEvent() {
-        return new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_NEXT) {
-                    txtPassword.requestFocus();
-                    handled = true;
-                }
-                return handled;
-            }
-        };
     }
 }

@@ -13,5 +13,6 @@
     <string name="search_movies">Search Movies</string>
     <string name="icon">Icon</string>
     <string name="title_activity_login">MyMoovs</string>
+    <string name="title_activity_register">RegisterActivity</string>
 
 </resources>

@@ -4,23 +4,23 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/abc_text_size_display_1_material"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="materialtest.vivz.slidenerd.materialtest.LoginActivity">
+    tools:context="materialtest.vivz.slidenerd.materialtest.RegisterActivity">
 
     <TextView
-        android:id="@+id/loginHeader"
+        android:id="@+id/registerHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Login"
+        android:text="Register new account"
         android:textSize="@dimen/abc_text_size_display_1_material"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"/>
-    
+
     <TextView
         android:id="@+id/lblUsername"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Username:"
-        android:layout_below="@+id/loginHeader"/>
+        android:layout_below="@+id/registerHeader"/>
     <EditText
         android:id="@+id/txtUsername"
         android:layout_width="match_parent"
@@ -30,48 +30,70 @@
         android:imeOptions="actionNext"/>
     
     <TextView
+        android:id="@+id/lblEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email:"
+        android:layout_below="@+id/txtUsername"/>
+    <EditText
+        android:id="@+id/txtEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Email"
+        android:layout_below="@+id/lblEmail"
+        android:imeOptions="actionNext"/>
+
+    <TextView
         android:id="@+id/lblPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Password:"
-        android:layout_below="@+id/txtUsername"/>
+        android:layout_below="@+id/txtEmail"/>
     <EditText
         android:id="@+id/txtPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Password"
+        android:hint="Password (mininum 6 characters)"
         android:layout_below="@+id/lblPassword"
         android:inputType="textPassword"
-        android:imeOptions="actionGo"/>
-    
-    <Button
-        android:id="@+id/btnLogin"
+        android:imeOptions="actionNext"/>
+
+    <TextView
+        android:id="@+id/lblRepeatPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Log in"
-        android:layout_below="@id/txtPassword"
-        android:onClick="login"/>
-    
+        android:text="Repeat password:"
+        android:layout_below="@+id/txtPassword"/>
+    <EditText
+        android:id="@+id/txtRepeatPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Repeat password"
+        android:layout_below="@+id/lblRepeatPassword"
+        android:inputType="textPassword"
+        android:imeOptions="actionNext"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/btnLogin">
+        android:layout_below="@+id/txtRepeatPassword">
 
         <Button
-            android:id="@+id/btnForgotPassword"
+            android:id="@+id/btnBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Forgot password"
+            android:text="Back"
             android:layout_weight="1"
-            android:onClick="forgotPassword"/>
+            android:onClick="goBack"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/btnRegister"
-            android:text="Register new account"
+            android:text="Register"
             android:layout_weight="1"
             android:onClick="registerNewAccount"/>
 
     </LinearLayout>
+
 </RelativeLayout>
