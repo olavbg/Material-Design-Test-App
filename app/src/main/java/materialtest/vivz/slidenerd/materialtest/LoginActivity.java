@@ -25,6 +25,7 @@ import java.util.Map;
 import materialtest.vivz.slidenerd.materialtest.utils.API_CONST;
 import materialtest.vivz.slidenerd.materialtest.utils.GlobalVars;
 import materialtest.vivz.slidenerd.materialtest.utils.Helper;
+import materialtest.vivz.slidenerd.materialtest.utils.VolleyRequest;
 
 import static android.text.TextUtils.isEmpty;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.hideProgressDialog;
@@ -49,23 +50,12 @@ public class LoginActivity extends ActionBarActivity {
         GlobalVars.init(this);
 
         final Bruker loggedInUser = getLoggedInUser();
-        if (loggedInUser != null){
+        if (loggedInUser != null) {
             loginUser(loggedInUser);
         }
 
         txtUsername.setOnEditorActionListener(getOnNextEvent());
         txtPassword.setOnEditorActionListener(getOnGoEvent());
-    }
-
-    private Bruker getLoggedInUser() {
-        final String loggedInUserJsonString = readFromPreferences(GlobalVars.PREF_KEY_LOGGED_IN_USER, "");
-        if (!isEmpty(loggedInUserJsonString)){
-            final Bruker loggedInUser = GlobalVars.gson.fromJson(loggedInUserJsonString, Bruker.class);
-            if (loggedInUser != null && loggedInUser.getBrukerID() != -1){
-                return loggedInUser;
-            }
-        }
-        return null;
     }
 
     @Override
@@ -90,11 +80,22 @@ public class LoginActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private Bruker getLoggedInUser() {
+        final String loggedInUserJsonString = readFromPreferences(GlobalVars.PREF_KEY_LOGGED_IN_USER, "");
+        if (!isEmpty(loggedInUserJsonString)) {
+            final Bruker loggedInUser = GlobalVars.gson.fromJson(loggedInUserJsonString, Bruker.class);
+            if (loggedInUser != null && loggedInUser.getBrukerID() != -1) {
+                return loggedInUser;
+            }
+        }
+        return null;
+    }
+
     public void login(View view) {
         login();
     }
-    
-    private void login(){
+
+    private void login() {
         final String username = txtUsername.getText().toString().trim();
         final String password = txtPassword.getText().toString().trim();
 
@@ -114,9 +115,8 @@ public class LoginActivity extends ActionBarActivity {
         GlobalVars.requestQueue.add(getLoginRequest(username, password));
     }
 
-    public StringRequest getLoginRequest(final String username, final String password) {
-        return new StringRequest(Request.Method.POST,
-                API_CONST.LOGIN_URL,
+    private StringRequest getLoginRequest(final String username, final String password) {
+        return new StringRequest(Request.Method.POST, API_CONST.LOGIN_URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -154,16 +154,24 @@ public class LoginActivity extends ActionBarActivity {
         GlobalVars.loggedInUser = bruker;
         startActivity(new Intent(getApplicationContext(), MainActivity.class));
         saveToPreferences(GlobalVars.PREF_KEY_LOGGED_IN_USER, GlobalVars.gson.toJson(bruker));
+        Helper.dismissProgressDialog();
         finish();
     }
 
     public void forgotPassword(View view) {
-        showToast("Not implemented yet..");
-        //TODO: Fortsette her!
+        final String email = txtUsername.getText().toString().trim();
+        if (isEmpty(email)) {
+            showToast("Please enter your email in the email/username field");
+            return;
+        }
+
+        // Adding request to request queue
+        Helper.showProgressDialog("Requesting new password..");
+        GlobalVars.requestQueue.add(VolleyRequest.getNewPasswordRequest(email));
     }
 
     public void registerNewAccount(View view) {
-        startActivity(new Intent(this,RegisterActivity.class));
+        startActivity(new Intent(this, RegisterActivity.class));
     }
 
     public TextView.OnEditorActionListener getOnGoEvent() {

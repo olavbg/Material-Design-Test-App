@@ -19,13 +19,13 @@
         android:id="@+id/lblUsername"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Username:"
+        android:text="Email or username:"
         android:layout_below="@+id/loginHeader"/>
     <EditText
         android:id="@+id/txtUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Username"
+        android:hint="Email / username"
         android:layout_below="@+id/lblUsername"
         android:imeOptions="actionNext"/>
     

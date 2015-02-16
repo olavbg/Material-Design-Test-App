@@ -8,11 +8,19 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/background_material_dark"
         tools:context="materialtest.vivz.slidenerd.materialtest.MainActivity">
 
         <include
             android:id="@+id/app_bar"
             layout="@layout/app_bar" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/cardView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="85dp"
+            android:scrollbars="vertical"/>
 
     </RelativeLayout>
 
