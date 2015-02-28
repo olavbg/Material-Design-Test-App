@@ -12,6 +12,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import materialtest.vivz.slidenerd.materialtest.utils.MovieList;
+
 import static android.text.TextUtils.isEmpty;
 
 public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.MovieViewHolder> {
@@ -31,34 +33,43 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
     }
 
     @Override
+    public long getItemId(int position) {
+        return super.getItemId(position);
+    }
+
+    @Override
     public void onBindViewHolder(final MovieViewHolder movieViewHolder, final int i) {
         final Movie movie = movieList.get(i);
 
         String posterUrl = "";
-        if (!isEmpty(movie.getImdb_id())){
-            posterUrl = "http://img.omdbapi.com/?i="+movie.getImdb_id()+"&apikey=7490539a&h=340";
-        }else if (!isEmpty(movie.getPoster())){
+        final int posterHeight = 240;
+        if (!isEmpty(movie.getImdb_id())) {
+            posterUrl = "http://img.omdbapi.com/?i=" + movie.getImdb_id() + "&apikey=7490539a&h=" + posterHeight;
+        } else if (!isEmpty(movie.getPoster())) {
             posterUrl = movie.getPoster();
         }
-        if (!isEmpty(posterUrl)){
+        if (!isEmpty(posterUrl)) {
             Picasso.with(movieViewHolder.context)
                     .load(posterUrl)
-                    .resize(220, 340)
-                    .centerInside()
+                    .resize(220, 350)
+                    .centerCrop()
                     .into(movieViewHolder.poster);
-            movieViewHolder.poster.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    movie.setTittel("Ny tittel!");
-                    notifyItemChanged(i);
-                }
-            });
+//            movieViewHolder.poster.setOnClickListener(getItemClickListener(movie, i));
+//            movieViewHolder.title.setOnClickListener(getItemClickListener(movie,i));
+//            movieViewHolder.tagline.setOnClickListener(getItemClickListener(movie,i));
         }
 
         movieViewHolder.title.setText(movie.getTittel());
-        movieViewHolder.tagline.setText(movie.getTagline());
-//        movieViewHolder.vSurname.setText(movie.getFormat());
-//        movieViewHolder.vEmail.setText("");
+        movieViewHolder.format.setText(movie.getFormat());
+
+        if (!movie.getTagline().isEmpty()) {
+            movieViewHolder.tagline.setText(movie.getTagline());
+        } else if (!movie.getPlot().isEmpty()) {
+            movieViewHolder.tagline.setText(movie.getPlot());
+        }
+
+
+//        movieViewHolder.itemView.setOnClickListener(getItemClickListener(movie,i));
     }
 
     @Override
@@ -66,13 +77,22 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
         return movieList.size();
     }
 
+    public View.OnClickListener getItemClickListener(final Movie movie, final int index) {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                notifyItemRemoved(index);
+                MovieList.removeMovie(movie);
+            }
+        };
+    }
+
     public static class MovieViewHolder extends RecyclerView.ViewHolder {
         protected Context context;
         protected ImageView poster;
         protected TextView title;
         protected TextView tagline;
-//        protected TextView vEmail;
-//        protected TextView vTitle;
+        protected TextView format;
 
         public MovieViewHolder(View v) {
             super(v);
@@ -80,8 +100,7 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
             poster = (ImageView) v.findViewById(R.id.poster);
             title = (TextView) v.findViewById(R.id.title);
             tagline = (TextView) v.findViewById(R.id.tagline);
-//            vEmail = (TextView) v.findViewById(R.id.txtEmail);
-//            vTitle = (TextView) v.findViewById(R.id.title);
+            format = (TextView) v.findViewById(R.id.format);
         }
     }
 }

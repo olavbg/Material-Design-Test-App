@@ -1,20 +1,28 @@
 package materialtest.vivz.slidenerd.materialtest;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.view.WindowManager;
 
 import materialtest.vivz.slidenerd.materialtest.utils.GlobalVars;
 import materialtest.vivz.slidenerd.materialtest.utils.Helper;
 import materialtest.vivz.slidenerd.materialtest.utils.MovieList;
 
+import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.loggedInUser;
+import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.requestQueue;
+import static materialtest.vivz.slidenerd.materialtest.utils.Helper.dismissProgressDialog;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.isConnected;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.saveToPreferences;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.showToast;
@@ -22,6 +30,8 @@ import static materialtest.vivz.slidenerd.materialtest.utils.VolleyRequest.getMo
 
 
 public class MainActivity extends ActionBarActivity {
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private RecyclerView recyclerView;
     private MovieCardAdapter adapter;
 
     @Override
@@ -33,7 +43,12 @@ public class MainActivity extends ActionBarActivity {
         setUpToolBarAndNavDrawer();
         setUpCardView();
 
-        showToast("Logged in as " + GlobalVars.loggedInUser.getBrukernavn());
+        if (savedInstanceState != null) {
+            MovieList.loadCachedMoviesIfAny();
+            return;
+        }
+
+        showToast("Logged in as " + loggedInUser.getBrukernavn());
         loadMovies();
     }
 
@@ -52,23 +67,51 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void setUpCardView() {
-        final RecyclerView cardView = (RecyclerView) findViewById(R.id.cardView);
-        final LinearLayoutManager llm = new LinearLayoutManager(this);
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        cardView.setLayoutManager(llm);
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                AsyncTask.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadMovies();
+                    }
+                });
+            }
+        });
+
+        final Display display = ((WindowManager) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        int rotation = display.getRotation();
+
+        recyclerView = (RecyclerView) findViewById(R.id.cardView);
+        final StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(rotation == OrientationHelper.HORIZONTAL ? 1 : 2, StaggeredGridLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(staggeredGridLayoutManager);
         adapter = new MovieCardAdapter(MovieList.movies);
-        cardView.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);
+        
+        //TODO: Setup fastscroller når klar: https://android-arsenal.com/details/1/1582
+//        final VerticalRecyclerViewFastScroller fastScroller = (VerticalRecyclerViewFastScroller) findViewById(R.id.fast_scroller);
+//        fastScroller.setRecyclerView(recyclerView);
+//        recyclerView.setOnScrollListener(fastScroller.getOnScrollListener());
     }
 
     private void loadMovies() {
         MovieList.loadCachedMoviesIfAny();
         if (isConnected()) {
-            GlobalVars.requestQueue.add(getMoviesRequest(GlobalVars.loggedInUser.getBrukerID(), adapter));
-        }else if (!MovieList.getAllMovies().isEmpty()){
+            requestQueue.add(getMoviesRequest(loggedInUser.getBrukerID(), adapter, swipeRefreshLayout));
+        } else if (!MovieList.getAllMovies().isEmpty()) {
             showToast("No internet connection. Only showing locally stored movies..");
-        }else{
+            swipeRefreshLayout.setRefreshing(false);
+        } else {
             showToast("No internet connection..");
+            swipeRefreshLayout.setRefreshing(false);
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        MovieList.cacheMoviesLocally();
     }
 
     @Override
@@ -87,12 +130,12 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Toast.makeText(this, "Hey you just hit " + item.getTitle(), Toast.LENGTH_SHORT).show();
+            showToast("Not implemented yet..");
             return true;
         } else if (id == R.id.action_logOut) {
             saveToPreferences(GlobalVars.PREF_KEY_LOGGED_IN_USER, "");
-            GlobalVars.loggedInUser = null;
-            Helper.dismissProgressDialog();
+            loggedInUser = null;
+            dismissProgressDialog();
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         }

@@ -12,7 +12,7 @@ public class GlobalVars {
     public static Bruker loggedInUser = null;
     public static RequestQueue requestQueue = null;
     public static final Gson gson = new Gson();
-    
+
     public static final String PREF_FILE_NAME = "sharedPrefsFile";
     public static final String PREF_KEY_LOGGED_IN_USER = "loggedInUser";
     public static final String PREF_KEY_MOVIE_CACHE = "movieCache";

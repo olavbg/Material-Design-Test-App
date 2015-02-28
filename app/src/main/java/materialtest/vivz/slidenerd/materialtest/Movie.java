@@ -180,7 +180,7 @@ public class Movie {
     }
 
     public String getPlot() {
-        return plot;
+        return plot.equalsIgnoreCase("N/A") ? "" : plot;
     }
 
     public void setPlot(String plot) {

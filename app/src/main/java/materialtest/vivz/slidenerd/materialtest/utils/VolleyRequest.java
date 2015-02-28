@@ -1,5 +1,6 @@
 package materialtest.vivz.slidenerd.materialtest.utils;
 
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
@@ -59,7 +60,7 @@ public class VolleyRequest {
         };
     }
 
-    public static StringRequest getMoviesRequest(final int brukerID, final MovieCardAdapter adapter) {
+    public static StringRequest getMoviesRequest(final int brukerID, final MovieCardAdapter adapter, final SwipeRefreshLayout swipeRefreshLayout) {
         return new StringRequest(Request.Method.POST,
                 API_CONST.LOGIN_URL,
                 new Response.Listener<String>() {
@@ -85,14 +86,17 @@ public class VolleyRequest {
                             if (!cachedMovies.isEmpty()) {
                                 MovieList.removeMovies(cachedMovies);
                             }
+                            MovieList.sortMoviesByTitle();
                             showToast("Movies loaded from the cloud: " + MovieList.getAllMovies().size());
                             MovieList.cacheMoviesLocally();
                         } catch (JSONException e) {
                             hideProgressDialog();
+                            swipeRefreshLayout.setRefreshing(false);
                             showToast("Ops! Something went wrong when reading movies from the cloud! Please try again later..");
                             e.printStackTrace();
                         }
                         hideProgressDialog();
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -101,6 +105,7 @@ public class VolleyRequest {
                 showToast("Ops! Something went wrong when connecting to the cloud! Please try again later..");
                 // hide the progress dialog
                 hideProgressDialog();
+                swipeRefreshLayout.setRefreshing(false);
             }
         }) {
             @Override
