@@ -21,8 +21,17 @@ import materialtest.vivz.slidenerd.materialtest.JsonPOSTResponse;
 import materialtest.vivz.slidenerd.materialtest.Movie;
 import materialtest.vivz.slidenerd.materialtest.MovieCardAdapter;
 
+import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.gson;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.hideProgressDialog;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.showToast;
+import static materialtest.vivz.slidenerd.materialtest.utils.MovieList.addMovie;
+import static materialtest.vivz.slidenerd.materialtest.utils.MovieList.cacheMoviesLocally;
+import static materialtest.vivz.slidenerd.materialtest.utils.MovieList.getAllMovies;
+import static materialtest.vivz.slidenerd.materialtest.utils.MovieList.getMovieById;
+import static materialtest.vivz.slidenerd.materialtest.utils.MovieList.removeMovies;
+import static materialtest.vivz.slidenerd.materialtest.utils.MovieList.setSelectedList;
+import static materialtest.vivz.slidenerd.materialtest.utils.MovieList.sortMoviesByTitle;
+import static materialtest.vivz.slidenerd.materialtest.utils.MovieList.updateMovie;
 
 public class VolleyRequest {
 
@@ -33,7 +42,7 @@ public class VolleyRequest {
                     @Override
                     public void onResponse(String response) {
                         Log.d("NEW PASSWORD RESPONSE", response);
-                        final JsonPOSTResponse jsonPOSTResponse = GlobalVars.gson.fromJson(response, JsonPOSTResponse.class);
+                        final JsonPOSTResponse jsonPOSTResponse = gson.fromJson(response, JsonPOSTResponse.class);
                         if (jsonPOSTResponse.isSuccess()) {
                             showToast("Your password has been reset and sent to '" + email + "'");
                         } else {
@@ -69,26 +78,30 @@ public class VolleyRequest {
                         Log.d("GET MOVIES RESPONSE", response);
                         try {
                             final JSONArray jsonArray = new JSONArray(response);
-                            final ArrayList<Movie> cachedMovies = MovieList.getAllMovies();
+                            final ArrayList<Movie> cachedMovies = getAllMovies();
 
                             for (int i = 0; i < jsonArray.length(); i++) {
-                                final Movie movie = GlobalVars.gson.fromJson(jsonArray.getString(i), Movie.class);
-                                final Movie existingMovie = MovieList.getMovieById(movie.getFilmID());
+                                final Movie movie = gson.fromJson(jsonArray.getString(i), Movie.class);
+                                final Movie existingMovie = getMovieById(movie.getFilmID());
                                 if (existingMovie != null && !existingMovie.equals(movie)) {
-                                    MovieList.updateMovie(movie, adapter);
+                                    updateMovie(movie, adapter);
                                 } else if (existingMovie == null) {
-                                    MovieList.addMovie(movie);
+                                    final int index = addMovie(movie);
+                                    if(index >=0){
+                                        adapter.notifyItemInserted(index);
+                                    }
                                 }
                                 if (cachedMovies.contains(movie)) {
                                     cachedMovies.remove(movie);
                                 }
                             }
                             if (!cachedMovies.isEmpty()) {
-                                MovieList.removeMovies(cachedMovies);
+                                removeMovies(cachedMovies);
                             }
-                            MovieList.sortMoviesByTitle();
-                            showToast("Movies loaded from the cloud: " + MovieList.getAllMovies().size());
-                            MovieList.cacheMoviesLocally();
+                            sortMoviesByTitle();
+                            setSelectedList(Types.ChosenListType.Your, adapter);
+                            showToast("Movies loaded from the cloud: " + getAllMovies().size());
+                            cacheMoviesLocally();
                         } catch (JSONException e) {
                             hideProgressDialog();
                             swipeRefreshLayout.setRefreshing(false);

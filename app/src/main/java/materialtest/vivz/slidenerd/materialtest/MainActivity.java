@@ -1,7 +1,6 @@
 package materialtest.vivz.slidenerd.materialtest;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -22,16 +21,17 @@ import materialtest.vivz.slidenerd.materialtest.utils.MovieList;
 
 import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.loggedInUser;
 import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.requestQueue;
-import static materialtest.vivz.slidenerd.materialtest.utils.Helper.dismissProgressDialog;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.isConnected;
-import static materialtest.vivz.slidenerd.materialtest.utils.Helper.saveToPreferences;
+import static materialtest.vivz.slidenerd.materialtest.utils.Helper.logOut;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.showToast;
+import static materialtest.vivz.slidenerd.materialtest.utils.MovieList.setSelectedList;
+import static materialtest.vivz.slidenerd.materialtest.utils.Types.ChosenListType;
 import static materialtest.vivz.slidenerd.materialtest.utils.VolleyRequest.getMoviesRequest;
 
 
 public class MainActivity extends ActionBarActivity {
+    private NavigationDrawerFragment drawerFragment;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private RecyclerView recyclerView;
     private MovieCardAdapter adapter;
 
     @Override
@@ -47,8 +47,6 @@ public class MainActivity extends ActionBarActivity {
             MovieList.loadCachedMoviesIfAny();
             return;
         }
-
-        showToast("Logged in as " + loggedInUser.getBrukernavn());
         loadMovies();
     }
 
@@ -61,9 +59,10 @@ public class MainActivity extends ActionBarActivity {
         final Toolbar toolbar = (Toolbar) findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        NavigationDrawerFragment drawerFragment = (NavigationDrawerFragment)
+        adapter = new MovieCardAdapter(MovieList.selectedList);
+        drawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
-        drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar);
+        drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar, adapter);
     }
 
     private void setUpCardView() {
@@ -83,12 +82,11 @@ public class MainActivity extends ActionBarActivity {
         final Display display = ((WindowManager) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         int rotation = display.getRotation();
 
-        recyclerView = (RecyclerView) findViewById(R.id.cardView);
+        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.cardView);
         final StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(rotation == OrientationHelper.HORIZONTAL ? 1 : 2, StaggeredGridLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
-        adapter = new MovieCardAdapter(MovieList.movies);
         recyclerView.setAdapter(adapter);
-        
+
         //TODO: Setup fastscroller når klar: https://android-arsenal.com/details/1/1582
 //        final VerticalRecyclerViewFastScroller fastScroller = (VerticalRecyclerViewFastScroller) findViewById(R.id.fast_scroller);
 //        fastScroller.setRecyclerView(recyclerView);
@@ -106,6 +104,8 @@ public class MainActivity extends ActionBarActivity {
             showToast("No internet connection..");
             swipeRefreshLayout.setRefreshing(false);
         }
+        setSelectedList(ChosenListType.Your, adapter);
+        drawerFragment.updateDrawer();
     }
 
     @Override
@@ -133,11 +133,7 @@ public class MainActivity extends ActionBarActivity {
             showToast("Not implemented yet..");
             return true;
         } else if (id == R.id.action_logOut) {
-            saveToPreferences(GlobalVars.PREF_KEY_LOGGED_IN_USER, "");
-            loggedInUser = null;
-            dismissProgressDialog();
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
+            logOut(this);
         }
 
         return super.onOptionsItemSelected(item);

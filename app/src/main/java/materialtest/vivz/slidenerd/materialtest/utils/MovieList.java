@@ -6,6 +6,7 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 
 import materialtest.vivz.slidenerd.materialtest.Movie;
 import materialtest.vivz.slidenerd.materialtest.MovieCardAdapter;
@@ -23,8 +24,25 @@ public class MovieList {
     public static ArrayList<Movie> movies = new ArrayList<>();
     public static ArrayList<Movie> borrowedMovies = new ArrayList<>();
     public static ArrayList<Movie> lentMovies = new ArrayList<>();
+    private static HashMap<Types.ChosenListType, ArrayList<Movie>> typeArrayListMap = new HashMap<Types.ChosenListType, ArrayList<Movie>>() {{
+        put(Types.ChosenListType.Your, movies);
+        put(Types.ChosenListType.Borrowed, borrowedMovies);
+        put(Types.ChosenListType.Lent, lentMovies);
+    }};
 
-    public static void addMovie(final Movie movie) {
+    public static ArrayList<Movie> selectedList = new ArrayList<>();
+
+    public static void setSelectedList(Types.ChosenListType chosenListType, MovieCardAdapter movieCardAdapter) {
+        selectedList.clear();
+        movieCardAdapter.notifyDataSetChanged();
+
+        for (Movie movie : typeArrayListMap.get(chosenListType)) {
+            selectedList.add(movie);
+            movieCardAdapter.notifyItemInserted(selectedList.indexOf(movie));
+        }
+    }
+
+    public static int addMovie(final Movie movie) {
         if (!userHasMovie(movie)) {
             if (movie.isBorrowed()) {
                 borrowedMovies.add(movie);
@@ -32,8 +50,10 @@ public class MovieList {
                 lentMovies.add(movie);
             } else {
                 movies.add(movie);
+                return movies.indexOf(movie);
             }
         }
+        return -1;
     }
 
     public static boolean userHasMovie(final Movie movie) {
@@ -46,14 +66,6 @@ public class MovieList {
         return false;
     }
 
-    public static ArrayList<Movie> getAllMovies() {
-        final ArrayList<Movie> allMovies = new ArrayList<>(movies);
-        allMovies.addAll(borrowedMovies);
-        allMovies.addAll(lentMovies);
-        Collections.sort(allMovies, new MovieTitleComparator());
-        return allMovies;
-    }
-
     public static ArrayList<Movie> getYourMovies() {
         return movies;
     }
@@ -64,6 +76,14 @@ public class MovieList {
 
     public static ArrayList<Movie> getLentMovies() {
         return lentMovies;
+    }
+
+    public static ArrayList<Movie> getAllMovies() {
+        final ArrayList<Movie> allMovies = new ArrayList<>(movies);
+        allMovies.addAll(borrowedMovies);
+        allMovies.addAll(lentMovies);
+        Collections.sort(allMovies, new MovieTitleComparator());
+        return allMovies;
     }
 
     public static Movie getMovieById(final int id) {
@@ -174,6 +194,13 @@ public class MovieList {
                 return;
             }
         }
+    }
+
+    public static void clearAll() {
+        movies.clear();
+        borrowedMovies.clear();
+        lentMovies.clear();
+        cacheMoviesLocally();
     }
 
     public static class MovieTitleComparator implements Comparator<Movie> {

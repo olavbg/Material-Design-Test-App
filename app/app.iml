@@ -87,11 +87,12 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="gson-1.7.2" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-21.0.3" level="project" />
+    <orderEntry type="library" exported="" name="android-iconify-1.0.9" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-21.0.3" level="project" />
     <orderEntry type="library" exported="" name="support-v4-21.0.3" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-21.0.3" level="project" />
     <orderEntry type="library" exported="" name="recyclerviewfastscroller-0.1.0" level="project" />
-    <orderEntry type="library" exported="" name="library-1.0.10" level="project" />
+    <orderEntry type="library" exported="" name="library-1.0.11" level="project" />
     <orderEntry type="library" exported="" name="picasso-2.5.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-6.5.87" level="project" />
     <orderEntry type="library" exported="" name="cardview-v7-21.0.3" level="project" />

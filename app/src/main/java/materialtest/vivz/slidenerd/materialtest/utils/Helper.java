@@ -3,37 +3,42 @@ package materialtest.vivz.slidenerd.materialtest.utils;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.widget.Toast;
 
+import materialtest.vivz.slidenerd.materialtest.LoginActivity;
+
+import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.loggedInUser;
+
 public class Helper {
     static Context context;
     static ProgressDialog pDialog;
 
-    public static void init(final Context context){
+    public static void init(final Context context) {
         Helper.context = context;
         pDialog = new ProgressDialog(context);
-    } 
+    }
 
     public static void showToast(String text) {
         checkContext();
         Toast.makeText(context, text, Toast.LENGTH_LONG).show();
     }
-    
-    public static void showProgressDialog(final String text){
+
+    public static void showProgressDialog(final String text) {
         checkContext();
         pDialog.setMessage(text);
         pDialog.show();
     }
-    
-    public static void hideProgressDialog(){
+
+    public static void hideProgressDialog() {
         checkContext();
         pDialog.hide();
     }
-    
-    public static void dismissProgressDialog(){
+
+    public static void dismissProgressDialog() {
         checkContext();
         pDialog.dismiss();
     }
@@ -60,8 +65,17 @@ public class Helper {
     }
 
     private static void checkContext() {
-        if (context == null){
+        if (context == null) {
             throw new NullPointerException("Method Helper.init(Context) must be called before this method can be called.");
         }
+    }
+
+    public static void logOut(final Activity activity) {
+        saveToPreferences(GlobalVars.PREF_KEY_LOGGED_IN_USER, "");
+        MovieList.clearAll();
+        loggedInUser = null;
+        dismissProgressDialog();
+        activity.startActivity(new Intent(context, LoginActivity.class));
+        activity.finish();
     }
 }
