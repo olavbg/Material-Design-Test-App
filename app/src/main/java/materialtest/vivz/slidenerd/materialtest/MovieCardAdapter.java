@@ -58,6 +58,12 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
         movieViewHolder.title.setText(movie.getTittel());
         movieViewHolder.format.setText(movie.getFormat());
 
+        if (movie.getRuntime().isEmpty() || movie.getRuntime().equalsIgnoreCase("0")){
+            movieViewHolder.runtime.setText("");
+        }else{
+            movieViewHolder.runtime.setText(movie.getRuntime()+" mins");
+        }
+
         if (!movie.getTagline().isEmpty()) {
             movieViewHolder.tagline.setText(movie.getTagline());
         } else if (!movie.getPlot().isEmpty()) {
@@ -75,6 +81,7 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
         protected LinearLayout movieRowLinearLayout;
         protected ImageView poster;
         protected TextView title;
+        protected TextView runtime;
         protected TextView tagline;
         protected TextView format;
 
@@ -84,6 +91,7 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
             movieRowLinearLayout = (LinearLayout) v.findViewById(R.id.movieRowLinearLayout);
             poster = (ImageView) v.findViewById(R.id.poster);
             title = (TextView) v.findViewById(R.id.title);
+            runtime = (TextView) v.findViewById(R.id.runtime);
             tagline = (TextView) v.findViewById(R.id.tagline);
             format = (TextView) v.findViewById(R.id.format);
         }
