@@ -13,7 +13,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
+
+import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.joanzapata.android.iconify.IconDrawable;
+import com.joanzapata.android.iconify.Iconify;
 
 import materialtest.vivz.slidenerd.materialtest.utils.GlobalVars;
 import materialtest.vivz.slidenerd.materialtest.utils.Helper;
@@ -42,12 +47,46 @@ public class MainActivity extends ActionBarActivity {
         initHelperClasses();
         setUpToolBarAndNavDrawer();
         setUpCardView();
+        setUpFAB();
 
         if (savedInstanceState != null) {
             MovieList.loadCachedMoviesIfAny();
             return;
         }
         loadMovies();
+    }
+
+    private void setUpFAB() {
+        FloatingActionButton fabAddMovie = (FloatingActionButton) findViewById(R.id.fabAddMovie);
+        FloatingActionButton fabScanMovie = (FloatingActionButton) findViewById(R.id.fabScanMovie);
+        FloatingActionButton fabQuickScan = (FloatingActionButton) findViewById(R.id.fabQuickscan);
+
+        fabAddMovie.setSize(FloatingActionButton.SIZE_MINI);
+        fabScanMovie.setSize(FloatingActionButton.SIZE_MINI);
+        fabQuickScan.setSize(FloatingActionButton.SIZE_MINI);
+
+        fabAddMovie.setImageDrawable(new IconDrawable(this, Iconify.IconValue.fa_film).sizeDp(26));
+        fabScanMovie.setImageDrawable(new IconDrawable(this, Iconify.IconValue.fa_camera).sizeDp(26));
+        fabQuickScan.setImageDrawable(new IconDrawable(this, Iconify.IconValue.fa_barcode).sizeDp(26));
+
+        fabAddMovie.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showToast("Showing activity for adding new movies");
+            }
+        });
+        fabScanMovie.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showToast("Showing activity for scanning movie barcode");
+            }
+        });
+        fabQuickScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showToast("Showing activity for scanning multiple barcodes fast");
+            }
+        });
     }
 
     private void initHelperClasses() {
@@ -96,7 +135,7 @@ public class MainActivity extends ActionBarActivity {
     private void loadMovies() {
         MovieList.loadCachedMoviesIfAny();
         if (isConnected()) {
-            requestQueue.add(getMoviesRequest(loggedInUser.getBrukerID(), adapter, swipeRefreshLayout));
+            requestQueue.add(getMoviesRequest(loggedInUser.getBrukerID(), adapter, swipeRefreshLayout, this));
         } else if (!MovieList.getAllMovies().isEmpty()) {
             showToast("No internet connection. Only showing locally stored movies..");
             swipeRefreshLayout.setRefreshing(false);
@@ -104,7 +143,7 @@ public class MainActivity extends ActionBarActivity {
             showToast("No internet connection..");
             swipeRefreshLayout.setRefreshing(false);
         }
-        setSelectedList(ChosenListType.Your, adapter);
+        setSelectedList(ChosenListType.Your, adapter, this);
         drawerFragment.updateDrawer();
     }
 

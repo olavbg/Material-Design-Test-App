@@ -90,13 +90,13 @@ public class NavigationDrawerFragment extends Fragment {
                 if (items.get(position).title.equals("Log out")) {
                     logOut(getActivity());
                 } else if (items.get(position).title.equals("Movies")) {
-                    setSelectedList(Types.ChosenListType.Your, movieCardAdapter);
+                    setSelectedList(Types.ChosenListType.Your, movieCardAdapter, getActivity());
                     drawerLayout.closeDrawers();
                 } else if (items.get(position).title.equals("Borrowed movies")) {
-                    setSelectedList(Types.ChosenListType.Borrowed, movieCardAdapter);
+                    setSelectedList(Types.ChosenListType.Borrowed, movieCardAdapter, getActivity());
                     drawerLayout.closeDrawers();
                 } else if (items.get(position).title.equals("Lent movies")) {
-                    setSelectedList(Types.ChosenListType.Lent, movieCardAdapter);
+                    setSelectedList(Types.ChosenListType.Lent, movieCardAdapter, getActivity());
                     drawerLayout.closeDrawers();
                 }else if (items.get(position).title.equals("Settings")){
                     showToast("Not implemented yet");

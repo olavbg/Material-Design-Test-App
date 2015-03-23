@@ -30,4 +30,5 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.0'
     compile 'xyz.danoz:recyclerviewfastscroller:0.1.0'
     compile 'com.joanzapata.android:android-iconify:1.0.9'
+    compile 'com.getbase:floatingactionbutton:1.8.0'
 }

@@ -1,5 +1,6 @@
 package materialtest.vivz.slidenerd.materialtest.utils;
 
+import android.app.Activity;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 
@@ -69,7 +70,7 @@ public class VolleyRequest {
         };
     }
 
-    public static StringRequest getMoviesRequest(final int brukerID, final MovieCardAdapter adapter, final SwipeRefreshLayout swipeRefreshLayout) {
+    public static StringRequest getMoviesRequest(final int brukerID, final MovieCardAdapter adapter, final SwipeRefreshLayout swipeRefreshLayout, final Activity activity) {
         return new StringRequest(Request.Method.POST,
                 API_CONST.LOGIN_URL,
                 new Response.Listener<String>() {
@@ -99,7 +100,7 @@ public class VolleyRequest {
                                 removeMovies(cachedMovies);
                             }
                             sortMoviesByTitle();
-                            setSelectedList(Types.ChosenListType.Your, adapter);
+                            setSelectedList(Types.ChosenListType.Your, adapter, activity);
                             showToast("Movies loaded from the cloud: " + getAllMovies().size());
                             cacheMoviesLocally();
                         } catch (JSONException e) {

@@ -1,5 +1,7 @@
 package materialtest.vivz.slidenerd.materialtest.utils;
 
+import android.app.Activity;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -32,14 +34,19 @@ public class MovieList {
 
     public static ArrayList<Movie> selectedList = new ArrayList<>();
 
-    public static void setSelectedList(Types.ChosenListType chosenListType, MovieCardAdapter movieCardAdapter) {
-        selectedList.clear();
-        movieCardAdapter.notifyDataSetChanged();
+    public static void setSelectedList(final Types.ChosenListType chosenListType, final MovieCardAdapter movieCardAdapter, Activity activity) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                selectedList.clear();
+                movieCardAdapter.notifyDataSetChanged();
 
-        for (Movie movie : typeArrayListMap.get(chosenListType)) {
-            selectedList.add(movie);
-            movieCardAdapter.notifyItemInserted(selectedList.indexOf(movie));
-        }
+                for (Movie movie : typeArrayListMap.get(chosenListType)) {
+                    selectedList.add(movie);
+                    movieCardAdapter.notifyItemInserted(selectedList.indexOf(movie));
+                }
+            }
+        });
     }
 
     public static int addMovie(final Movie movie) {
