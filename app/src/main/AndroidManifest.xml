@@ -37,6 +37,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="materialtest.vivz.slidenerd.materialtest.LoginActivity" />
         </activity>
+        <activity
+            android:name=".addmovie.AddMovieActivity"
+            android:label="@string/title_activity_add_movie"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="materialtest.vivz.slidenerd.materialtest.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

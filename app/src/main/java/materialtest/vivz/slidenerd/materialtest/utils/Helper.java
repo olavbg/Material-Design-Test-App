@@ -22,9 +22,14 @@ public class Helper {
         pDialog = new ProgressDialog(context);
     }
 
-    public static void showToast(String text) {
+    public static void showToast(final String text) {
         checkContext();
-        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+        ((Activity)context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     public static void showProgressDialog(final String text) {

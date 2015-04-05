@@ -1,5 +1,7 @@
 package materialtest.vivz.slidenerd.materialtest;
 
+import materialtest.vivz.slidenerd.materialtest.utils.GlobalVars;
+
 public class Movie {
     private int filmID = -1;
     private String tittel = "";
@@ -27,6 +29,10 @@ public class Movie {
     private String utlanID = "";
 
     private String err_msg = "";
+
+    public Movie(){
+        this.setBrukerID(GlobalVars.loggedInUser.getBrukerID());
+    }
 
     public Movie(int filmID, String tittel, String format, String lagtTil, int brukerID, String type, String year, String rated, String released, String runtime, String genre, String director, String writer, String actor, String tagline, String plot, String trailer, String imdb_id, String trakt_id, String poster, String ut, String dato, String utlanID, String err_msg) {
         setFilmID(filmID);

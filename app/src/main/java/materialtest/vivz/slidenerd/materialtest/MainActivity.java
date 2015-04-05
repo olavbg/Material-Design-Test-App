@@ -1,6 +1,7 @@
 package materialtest.vivz.slidenerd.materialtest;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -17,12 +18,17 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.getbase.floatingactionbutton.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 
+import jp.wasabeef.recyclerview.animators.SlideInRightAnimator;
+import jp.wasabeef.recyclerview.animators.adapters.AlphaInAnimationAdapter;
+import materialtest.vivz.slidenerd.materialtest.addmovie.AddMovieActivity;
 import materialtest.vivz.slidenerd.materialtest.utils.GlobalVars;
 import materialtest.vivz.slidenerd.materialtest.utils.Helper;
 import materialtest.vivz.slidenerd.materialtest.utils.MovieList;
+import materialtest.vivz.slidenerd.materialtest.utils.Types;
 
 import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.loggedInUser;
 import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.requestQueue;
@@ -30,7 +36,6 @@ import static materialtest.vivz.slidenerd.materialtest.utils.Helper.isConnected;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.logOut;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.showToast;
 import static materialtest.vivz.slidenerd.materialtest.utils.MovieList.setSelectedList;
-import static materialtest.vivz.slidenerd.materialtest.utils.Types.ChosenListType;
 import static materialtest.vivz.slidenerd.materialtest.utils.VolleyRequest.getMoviesRequest;
 
 
@@ -38,6 +43,7 @@ public class MainActivity extends ActionBarActivity {
     private NavigationDrawerFragment drawerFragment;
     private SwipeRefreshLayout swipeRefreshLayout;
     private MovieCardAdapter adapter;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +63,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void setUpFAB() {
+        final FloatingActionsMenu fabMenu = (FloatingActionsMenu) findViewById(R.id.fabMenu);
         FloatingActionButton fabAddMovie = (FloatingActionButton) findViewById(R.id.fabAddMovie);
         FloatingActionButton fabScanMovie = (FloatingActionButton) findViewById(R.id.fabScanMovie);
         FloatingActionButton fabQuickScan = (FloatingActionButton) findViewById(R.id.fabQuickscan);
@@ -69,22 +76,29 @@ public class MainActivity extends ActionBarActivity {
         fabScanMovie.setImageDrawable(new IconDrawable(this, Iconify.IconValue.fa_camera).sizeDp(26));
         fabQuickScan.setImageDrawable(new IconDrawable(this, Iconify.IconValue.fa_barcode).sizeDp(26));
 
+        final Intent intent = new Intent(getApplicationContext(), AddMovieActivity.class);
         fabAddMovie.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showToast("Showing activity for adding new movies");
+                intent.putExtra("index", 0);
+                startActivity(intent);
+                fabMenu.collapse();
             }
         });
         fabScanMovie.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showToast("Showing activity for scanning movie barcode");
+                intent.putExtra("index", 1);
+                startActivity(intent);
+                fabMenu.collapse();
             }
         });
         fabQuickScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showToast("Showing activity for scanning multiple barcodes fast");
+                intent.putExtra("index", 2);
+                startActivity(intent);
+                fabMenu.collapse();
             }
         });
     }
@@ -98,7 +112,7 @@ public class MainActivity extends ActionBarActivity {
         final Toolbar toolbar = (Toolbar) findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        adapter = new MovieCardAdapter(MovieList.selectedList);
+        adapter = new MovieCardAdapter(MovieList.movies);
         drawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
         drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar, adapter);
@@ -121,10 +135,12 @@ public class MainActivity extends ActionBarActivity {
         final Display display = ((WindowManager) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         int rotation = display.getRotation();
 
-        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.cardView);
+        recyclerView = (RecyclerView) findViewById(R.id.cardView);
         final StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(rotation == OrientationHelper.HORIZONTAL ? 1 : 2, StaggeredGridLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setAdapter(adapter);
+        recyclerView.setItemAnimator(new SlideInRightAnimator());
+        recyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
 
         //TODO: Setup fastscroller når klar: https://android-arsenal.com/details/1/1582
 //        final VerticalRecyclerViewFastScroller fastScroller = (VerticalRecyclerViewFastScroller) findViewById(R.id.fast_scroller);
@@ -143,7 +159,7 @@ public class MainActivity extends ActionBarActivity {
             showToast("No internet connection..");
             swipeRefreshLayout.setRefreshing(false);
         }
-        setSelectedList(ChosenListType.Your, adapter, this);
+        setSelectedList(Types.ChosenListType.Your, adapter, this);
         drawerFragment.updateDrawer();
     }
 
@@ -169,7 +185,17 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            showToast("Not implemented yet..");
+//            showToast("Not implemented yet..");
+
+            final Movie movie = new Movie();
+            movie.setTittel("0TEST");
+            movie.setFormat("HD-DVD");
+
+            MovieList.sortMoviesByTitle();
+            adapter.addItem(MovieList.movies.indexOf(movie), movie);
+            recyclerView.scrollToPosition(MovieList.movies.indexOf(movie));
+
+            showToast("Added test movie. Size: " + MovieList.selectedList.size());
             return true;
         } else if (id == R.id.action_logOut) {
             logOut(this);

@@ -19,7 +19,6 @@ public class GlobalVars {
     public static final String PREF_KEY_BORROWED_MOVIE_CACHE = "borrowedMovieCache";
     public static final String PREF_KEY_LENT_MOVIE_CACHE = "lentMovieCache";
 
-
     public static void init(final Context context) {
         requestQueue = Volley.newRequestQueue(context);
     }

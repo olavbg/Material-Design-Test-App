@@ -22,6 +22,22 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
         this.movieList = movieList;
     }
 
+    public void addItem(int position, final Movie movie){
+        movieList.add(position,movie);
+        notifyItemInserted(position);
+    }
+
+    public void removeItem(final Movie movie){
+        final int indexOf = movieList.indexOf(movie);
+        movieList.remove(movie);
+        notifyItemRemoved(indexOf);
+    }
+
+    public void updateItems(final List<Movie> items){
+        movieList = items;
+        notifyDataSetChanged();
+    }
+
     @Override
     public MovieViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View itemView = LayoutInflater.
@@ -37,8 +53,8 @@ public class MovieCardAdapter extends RecyclerView.Adapter<MovieCardAdapter.Movi
     }
 
     @Override
-    public void onBindViewHolder(final MovieViewHolder movieViewHolder, final int i) {
-        final Movie movie = movieList.get(i);
+    public void onBindViewHolder(final MovieViewHolder movieViewHolder, int i) {
+        final Movie movie = movieList.get(movieViewHolder.getPosition());
 
         String posterUrl = "";
         final int posterHeight = 240;

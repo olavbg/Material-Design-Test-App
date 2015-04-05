@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
+import materialtest.vivz.slidenerd.materialtest.MainActivity;
 import materialtest.vivz.slidenerd.materialtest.Movie;
 import materialtest.vivz.slidenerd.materialtest.MovieCardAdapter;
 
@@ -31,20 +32,19 @@ public class MovieList {
         put(Types.ChosenListType.Borrowed, borrowedMovies);
         put(Types.ChosenListType.Lent, lentMovies);
     }};
-
+    public static Types.ChosenListType selectedListType = Types.ChosenListType.Your;
     public static ArrayList<Movie> selectedList = new ArrayList<>();
 
     public static void setSelectedList(final Types.ChosenListType chosenListType, final MovieCardAdapter movieCardAdapter, Activity activity) {
+        selectedListType = chosenListType;
+        selectedList.clear();
+        for (Movie movie : typeArrayListMap.get(selectedListType)) {
+            selectedList.add(movie);
+        }
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                selectedList.clear();
                 movieCardAdapter.notifyDataSetChanged();
-
-                for (Movie movie : typeArrayListMap.get(chosenListType)) {
-                    selectedList.add(movie);
-                    movieCardAdapter.notifyItemInserted(selectedList.indexOf(movie));
-                }
             }
         });
     }
@@ -102,7 +102,25 @@ public class MovieList {
         return null;
     }
 
-    public static void updateMovie(final Movie updatedMovie, MovieCardAdapter adapter) {
+    public static Movie getMovieByIdent(final String title, final String format) {
+        for (Movie movie : getAllMovies()) {
+            if (movie.getTittel().equalsIgnoreCase(title.trim()) && movie.getFormat().equalsIgnoreCase(format.trim())) {
+                return movie;
+            }
+        }
+        return null;
+    }
+
+    public static Movie getMovieBySearchIdent(String imdbID, final String format) {
+        for (Movie movie : getAllMovies()) {
+            if (movie.getImdb_id().equals(imdbID) && movie.getFormat().equalsIgnoreCase(format)) {
+                return movie;
+            }
+        }
+        return null;
+    }
+
+    public static void updateMovie(final Movie updatedMovie, final MovieCardAdapter adapter, Activity activity) {
         int counter = 0;
         for (Movie movie : movies) {
             if (movie.getFilmID() == updatedMovie.getFilmID()) {
@@ -126,7 +144,12 @@ public class MovieList {
             }
         }
         if (adapter != null && counter > 0) {
-            adapter.notifyDataSetChanged();
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    adapter.notifyDataSetChanged();
+                }
+            });
         }
         showToast("Movies updated: " + counter);
     }
@@ -208,6 +231,17 @@ public class MovieList {
         borrowedMovies.clear();
         lentMovies.clear();
         cacheMoviesLocally();
+    }
+
+    public static void refreshList(final MovieCardAdapter adapter, final MainActivity activity) {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.notifyDataSetChanged();
+                MovieList.sortMoviesByTitle();
+                setSelectedList(selectedListType, adapter,activity);
+            }
+        });
     }
 
     public static class MovieTitleComparator implements Comparator<Movie> {

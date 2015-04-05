@@ -41,6 +41,7 @@ public class NavigationDrawerFragment extends Fragment {
     private ListView navDrawerList;
     private MovieCardAdapter movieCardAdapter;
     private DrawerLayout drawerLayout;
+    private VivzAdapter adapter;
 
     public NavigationDrawerFragment() {
         // Required empty public constructor
@@ -60,6 +61,7 @@ public class NavigationDrawerFragment extends Fragment {
             public void run() {
                 navDrawerLoggedInAs.setText("Logged in as " + GlobalVars.loggedInUser.getBrukernavn());
                 navDrawerList.setItemChecked(0, true);
+                adapter.notifyDataSetChanged();
             }
         });
     }
@@ -79,10 +81,10 @@ public class NavigationDrawerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View layout = inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
+        final View layout = inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
         navDrawerList = (ListView) layout.findViewById(R.id.navDrawerList);
         navDrawerLoggedInAs = (TextView) layout.findViewById(R.id.navDrawerLoggedInAs);
-        final VivzAdapter adapter = new VivzAdapter(getActivity(), R.layout.nav_drawer_row, items);
+        adapter = new VivzAdapter(getActivity(), R.layout.nav_drawer_row, items);
         navDrawerList.setAdapter(adapter);
         navDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

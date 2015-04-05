@@ -10,5 +10,28 @@
     <string name="icon">Icon</string>
     <string name="title_activity_login">MyMoovs</string>
     <string name="title_activity_register">MyMoovs</string>
+    <string name="title_activity_add_movie">AddMovieActivity</string>
+
+    <string-array name="tabs">
+        <item>Add manually</item>
+        <item>Scan barcode</item>
+        <item>Quick add</item>
+    </string-array>
+    <string name="title_activity_test">TestActivity</string>
+
+
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+
+    <string-array name="movie_formats">
+        <item>Blu-Ray</item>
+        <item>DVD</item>
+        <item>VHS</item>
+        <item>UMD</item>
+        <item>Betamax</item>
+    </string-array>
+
+    <string name="hello_world">Hello world!</string>
 
 </resources>

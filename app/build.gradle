@@ -31,4 +31,5 @@ dependencies {
     compile 'xyz.danoz:recyclerviewfastscroller:0.1.0'
     compile 'com.joanzapata.android:android-iconify:1.0.9'
     compile 'com.getbase:floatingactionbutton:1.8.0'
+    compile 'jp.wasabeef:recyclerview-animators:1.1.2@aar'
 }
