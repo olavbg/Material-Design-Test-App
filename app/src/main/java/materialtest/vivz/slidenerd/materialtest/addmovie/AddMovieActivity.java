@@ -18,6 +18,9 @@ public class AddMovieActivity extends ActionBarActivity {
 
     SectionsPagerAdapter mSectionsPagerAdapter;
     ViewPager mViewPager;
+    private FragmentClasses.ManualAddFragment manualAddFragment = new FragmentClasses.ManualAddFragment();
+    private FragmentClasses.ScanBarcodeFragment scanBarcodeFragment = new FragmentClasses.ScanBarcodeFragment();
+    private FragmentClasses.QuickAddFragment quickAddFragment = new FragmentClasses.QuickAddFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +33,10 @@ public class AddMovieActivity extends ActionBarActivity {
 
         setTopPadding();
         mViewPager.setCurrentItem(getIntent().getIntExtra("index",0), true);
+
+        manualAddFragment = new FragmentClasses.ManualAddFragment();
+        scanBarcodeFragment = new FragmentClasses.ScanBarcodeFragment();
+        quickAddFragment = new FragmentClasses.QuickAddFragment();
     }
 
     private void setTopPadding() {
@@ -74,13 +81,17 @@ public class AddMovieActivity extends ActionBarActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return new FragmentClasses.ManualAddFragment();
+                    quickAddFragment.disableCamera();
+                    return manualAddFragment;
                 case 1:
-                    return new FragmentClasses.ScanBarcodeFragment();
+                    quickAddFragment.enableCameraCamera();
+                    return scanBarcodeFragment;
                 case 2:
-                    return new FragmentClasses.QuicAddFragment();
+                    quickAddFragment.enableCameraCamera();
+                    return quickAddFragment;
                 default:
-                    return new FragmentClasses.ManualAddFragment();
+                    quickAddFragment.disableCamera();
+                    return manualAddFragment;
             }
         }
 

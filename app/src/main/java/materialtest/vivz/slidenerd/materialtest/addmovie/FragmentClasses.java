@@ -24,6 +24,10 @@ import materialtest.vivz.slidenerd.materialtest.R;
 import materialtest.vivz.slidenerd.materialtest.utils.GlobalVars;
 import materialtest.vivz.slidenerd.materialtest.utils.Helper;
 import materialtest.vivz.slidenerd.materialtest.utils.VolleyRequest;
+import me.dm7.barcodescanner.zbar.Result;
+import me.dm7.barcodescanner.zbar.ZBarScannerView;
+
+import static materialtest.vivz.slidenerd.materialtest.utils.Helper.showToast;
 
 public class FragmentClasses {
 
@@ -136,14 +140,70 @@ public class FragmentClasses {
         }
     }
 
-    public static class QuicAddFragment extends Fragment {
+    public static class QuickAddFragment extends Fragment implements ZBarScannerView.ResultHandler {
+        private static final String FLASH_STATE = "FLASH_STATE";
+        private static final String AUTO_FOCUS_STATE = "AUTO_FOCUS_STATE";
+        private ZBarScannerView mScannerView;
+        private boolean mFlash;
+        private boolean mAutoFocus;
 
-        public QuicAddFragment() {
+        public QuickAddFragment() {
+
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.fragment_quick_add, container, false);
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle state) {
+//            return inflater.inflate(R.layout.fragment_quick_add, container, false);
+
+            mScannerView = new ZBarScannerView(getActivity());
+            if (state != null) {
+                mFlash = state.getBoolean(FLASH_STATE, false);
+                mAutoFocus = state.getBoolean(AUTO_FOCUS_STATE, true);
+            } else {
+                mFlash = false;
+                mAutoFocus = true;
+            }
+            return mScannerView;
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            mScannerView.setResultHandler(this);
+            mScannerView.startCamera();
+            mScannerView.setFlash(mFlash);
+            mScannerView.setAutoFocus(mAutoFocus);
+        }
+
+        @Override
+        public void onSaveInstanceState(Bundle outState) {
+            super.onSaveInstanceState(outState);
+            outState.putBoolean(FLASH_STATE, mFlash);
+            outState.putBoolean(AUTO_FOCUS_STATE, mAutoFocus);
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            mScannerView.stopCamera();
+        }
+
+        @Override
+        public void handleResult(Result result) {
+            showToast("Searching...", Toast.LENGTH_SHORT);
+            GlobalVars.requestQueue.add(VolleyRequest.getSearchEANRequest(result.getContents(), mScannerView));
+        }
+
+        public void enableCameraCamera() {
+            if (mScannerView != null) {
+                mScannerView.startCamera();
+            }
+        }
+
+        public void disableCamera() {
+            if (mScannerView != null) {
+                mScannerView.stopCamera();
+            }
         }
     }
 }

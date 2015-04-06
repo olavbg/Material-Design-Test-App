@@ -26,8 +26,10 @@ import java.util.Map;
 import materialtest.vivz.slidenerd.materialtest.JsonPOSTResponse;
 import materialtest.vivz.slidenerd.materialtest.Movie;
 import materialtest.vivz.slidenerd.materialtest.MovieCardAdapter;
+import materialtest.vivz.slidenerd.materialtest.addmovie.EANSearchedMovie;
 import materialtest.vivz.slidenerd.materialtest.addmovie.MovieSearchCardAdapter;
 import materialtest.vivz.slidenerd.materialtest.addmovie.SimpleSearchedMovie;
+import me.dm7.barcodescanner.zbar.ZBarScannerView;
 
 import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.gson;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.hideProgressDialog;
@@ -102,7 +104,9 @@ public class VolleyRequest {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                addMovie.setChecked(false);
+                if (addMovie != null){
+                    addMovie.setChecked(false);
+                }
                 VolleyLog.d("ADD MOVIE ERROR", "Error: " + error.getMessage());
                 showToast("Ops! Something went wrong when connecting to the cloud! Please try again later..");
                 hideProgressDialog();
@@ -117,6 +121,48 @@ public class VolleyRequest {
                 params.put("brukerID", String.valueOf(movie.getBrukerID()));
                 params.put("addDetails", String.valueOf(Settings.addDetails));
 //                params.put("movie", GlobalVars.gson.toJson(movie));
+                return params;
+            }
+        };
+    }
+
+    public static StringRequest getSearchEANRequest(final String eanNr, final ZBarScannerView mScannerView) {
+        return new StringRequest(Request.Method.POST,
+                API_CONST.SEARCH_EAN_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("SEARCH EAN RESPONSE", response);
+                        try {
+                            final EANSearchedMovie addedMovie = gson.fromJson(response, EANSearchedMovie.class);
+                            if (addedMovie.getErr_msg() != null && addedMovie.getErr_msg().isEmpty()) {
+                                if (MovieList.getMovieByIdent(addedMovie.getTitle(),addedMovie.getFormat()) == null){
+                                    GlobalVars.requestQueue.add(VolleyRequest.getAddMovieRequest(addedMovie.convertFromSearch(), null));
+                                }else{
+                                    showToast("You already got "+addedMovie.getTitle()+" on "+addedMovie.getFormat());
+                                }
+                            } else {
+                                showToast(addedMovie.getErr_msg());
+                            }
+                        } catch (JsonParseException e) {
+                            e.printStackTrace();
+                        } finally {
+                            hideProgressDialog();
+                            mScannerView.startCamera();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("SEARCH EAN ERROR", "Error: " + error.getMessage());
+                showToast("Ops! Something went wrong when connecting to the cloud! Please try again later..");
+                hideProgressDialog();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("eanNr", eanNr);
                 return params;
             }
         };

@@ -32,6 +32,16 @@ public class Helper {
         });
     }
 
+    public static void showToast(final String text, final int length) {
+        checkContext();
+        ((Activity)context).runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(context, text, length).show();
+            }
+        });
+    }
+
     public static void showProgressDialog(final String text) {
         checkContext();
         pDialog.setMessage(text);

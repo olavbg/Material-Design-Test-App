@@ -4,12 +4,15 @@ import android.util.Log;
 
 public class API_CONST {
     public static String LOGIN_URL = "http://www.olavbg.com/android.php";
+    public static String SEARCH_EAN_URL = "http://www.olavbg.com/testing/android_search_ean.php";
+
     public static String LOGIN_TAG = "login";
     public static String REGISTER_TAG = "register";
     public static String FORGOT_PASSWORD_TAG = "forgotPassword";
     public static String GET_MOVIES = "getMovies";
     public static String ADD_MOVIE_TAG = "add_movie";
     public static String DELETE_MOVIE_TAG = "delete_movie";
+    public static String SEARCH_EAN_TAG = "search_ean";
 
     public static String OmdbAPISearch(final String title) {
         final String formattedTitle = title.replace(" ", "%20");
