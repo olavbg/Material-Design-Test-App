@@ -28,7 +28,7 @@ import materialtest.vivz.slidenerd.materialtest.Movie;
 import materialtest.vivz.slidenerd.materialtest.MovieCardAdapter;
 import materialtest.vivz.slidenerd.materialtest.addmovie.EANSearchedMovie;
 import materialtest.vivz.slidenerd.materialtest.addmovie.MovieSearchCardAdapter;
-import materialtest.vivz.slidenerd.materialtest.addmovie.SimpleSearchedMovie;
+import materialtest.vivz.slidenerd.materialtest.addmovie.SearchedMovie;
 import me.dm7.barcodescanner.zbar.ZBarScannerView;
 
 import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.gson;
@@ -88,12 +88,59 @@ public class VolleyRequest {
                         Log.d("ADD MOVIE RESPONSE", response);
                         try {
                             final Movie addedMovie = gson.fromJson(response, Movie.class);
-                            if (addedMovie.getErr_msg() != null && addedMovie.getErr_msg().isEmpty()) {
+                            if (addedMovie.getErr_msg() == null || addedMovie.getErr_msg().isEmpty()) {
                                 MovieList.addMovie(addedMovie);
                                 MovieList.cacheMoviesLocally();
                                 showToast(movie.getTittel() + " on " + movie.getFormat() + " added to the cloud");
                             } else {
                                 showToast(addedMovie.getErr_msg());
+                                unCheckCheckBox(addMovie);
+                            }
+                        } catch (JsonParseException e) {
+                            e.printStackTrace();
+                            unCheckCheckBox(addMovie);
+                        } finally {
+                            hideProgressDialog();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                unCheckCheckBox(addMovie);
+                VolleyLog.d("ADD MOVIE ERROR", "Error: " + error.getMessage());
+                showToast("Ops! Something went wrong when connecting to the cloud! Please try again later..");
+                hideProgressDialog();
+            }
+        }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("tag", API_CONST.ADD_MOVIE_WITH_DETAILS_TAG);
+                params.put("movie", GlobalVars.gson.toJson(movie));
+                return params;
+            }
+        };
+    }
+
+    private static void unCheckCheckBox(final CheckBox checkBox){
+        if (checkBox != null) {
+            checkBox.setChecked(false);
+        }
+    }
+
+    public static StringRequest getMovieDetailsFromImdbIdRequest(final String imdbId, final Callback<SearchedMovie> callback) {
+        return new StringRequest(Request.Method.POST,
+                API_CONST.OmdbAPIFindMovieByImdbIdURL(imdbId),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("MOVIE DETAILS RESPONSE", response);
+                        try {
+                            final SearchedMovie searchedMovie = gson.fromJson(response, SearchedMovie.class);
+                            if (searchedMovie.getError() == null || searchedMovie.getError().isEmpty()) {
+                                callback.call(searchedMovie);
+                            } else {
+                                showToast(searchedMovie.getError());
                             }
                         } catch (JsonParseException e) {
                             e.printStackTrace();
@@ -104,26 +151,11 @@ public class VolleyRequest {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                if (addMovie != null){
-                    addMovie.setChecked(false);
-                }
-                VolleyLog.d("ADD MOVIE ERROR", "Error: " + error.getMessage());
+                VolleyLog.d("MOVIE DETAILS ERROR", "Error: " + error.getMessage());
                 showToast("Ops! Something went wrong when connecting to the cloud! Please try again later..");
                 hideProgressDialog();
             }
-        }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("tag", API_CONST.ADD_MOVIE_TAG);
-                params.put("title", movie.getTittel());
-                params.put("format", movie.getFormat());
-                params.put("brukerID", String.valueOf(movie.getBrukerID()));
-                params.put("addDetails", String.valueOf(Settings.addDetails));
-//                params.put("movie", GlobalVars.gson.toJson(movie));
-                return params;
-            }
-        };
+        });
     }
 
     public static StringRequest getSearchEANRequest(final String eanNr, final ZBarScannerView mScannerView) {
@@ -136,10 +168,10 @@ public class VolleyRequest {
                         try {
                             final EANSearchedMovie addedMovie = gson.fromJson(response, EANSearchedMovie.class);
                             if (addedMovie.getErr_msg() != null && addedMovie.getErr_msg().isEmpty()) {
-                                if (MovieList.getMovieByIdent(addedMovie.getTitle(),addedMovie.getFormat()) == null){
+                                if (MovieList.getMovieByIdent(addedMovie.getTitle(), addedMovie.getFormat()) == null) {
                                     GlobalVars.requestQueue.add(VolleyRequest.getAddMovieRequest(addedMovie.convertFromSearch(), null));
-                                }else{
-                                    showToast("You already got "+addedMovie.getTitle()+" on "+addedMovie.getFormat());
+                                } else {
+                                    showToast("You already got " + addedMovie.getTitle() + " on " + addedMovie.getFormat());
                                 }
                             } else {
                                 showToast(addedMovie.getErr_msg());
@@ -188,7 +220,7 @@ public class VolleyRequest {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                VolleyLog.d("ADD MOVIE ERROR", "Error: " + error.getMessage());
+                VolleyLog.d("REMOVE MOVIE ERROR", "Error: " + error.getMessage());
                 showToast("Ops! Something went wrong when connecting to the cloud! Please try again later..");
                 addMovie.setChecked(true);
                 hideProgressDialog();
@@ -283,9 +315,9 @@ public class VolleyRequest {
         });
     }
 
-    public static StringRequest getMovieSearchRequest(final String title, final String format, final ArrayList<SimpleSearchedMovie> suggestions, final MovieSearchCardAdapter adapter, final FragmentActivity activity) {
+    public static StringRequest getMovieSearchRequest(final String title, final String format, final ArrayList<SearchedMovie> suggestions, final MovieSearchCardAdapter adapter, final FragmentActivity activity) {
         return new StringRequest(Request.Method.POST,
-                API_CONST.OmdbAPISearch(title),
+                API_CONST.OmdbAPISearchURL(title),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -296,7 +328,7 @@ public class VolleyRequest {
                                 JSONArray movies = (JSONArray) search.get("Search");
                                 for (int i = 0; i < movies.length(); i++) {
                                     Log.d("Found in search", movies.get(i).toString());
-                                    final SimpleSearchedMovie searchedMovie = GlobalVars.gson.fromJson(movies.get(i).toString(), SimpleSearchedMovie.class);
+                                    final SearchedMovie searchedMovie = GlobalVars.gson.fromJson(movies.get(i).toString(), SearchedMovie.class);
                                     searchedMovie.setFormat(format);
                                     suggestions.add(searchedMovie);
                                     final int finalI = i;

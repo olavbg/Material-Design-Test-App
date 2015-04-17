@@ -38,7 +38,7 @@ public class FragmentClasses {
 
         private RecyclerView recyclerView;
         private MovieSearchCardAdapter adapter;
-        private ArrayList<SimpleSearchedMovie> suggestions = new ArrayList<>();
+        private ArrayList<SearchedMovie> suggestions = new ArrayList<>();
 
         public ManualAddFragment() {
         }
@@ -99,7 +99,7 @@ public class FragmentClasses {
             formats.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    for (SimpleSearchedMovie searchedMovie : suggestions) {
+                    for (SearchedMovie searchedMovie : suggestions) {
                         searchedMovie.setFormat(formats.getSelectedItem().toString());
                         adapter.notifyDataSetChanged();
                     }

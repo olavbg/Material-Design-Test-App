@@ -17,6 +17,7 @@ import java.util.List;
 
 import materialtest.vivz.slidenerd.materialtest.Movie;
 import materialtest.vivz.slidenerd.materialtest.R;
+import materialtest.vivz.slidenerd.materialtest.utils.Callback;
 import materialtest.vivz.slidenerd.materialtest.utils.GlobalVars;
 import materialtest.vivz.slidenerd.materialtest.utils.MovieList;
 import materialtest.vivz.slidenerd.materialtest.utils.VolleyRequest;
@@ -24,9 +25,9 @@ import materialtest.vivz.slidenerd.materialtest.utils.VolleyRequest;
 import static android.text.TextUtils.isEmpty;
 
 public class MovieSearchCardAdapter extends RecyclerView.Adapter<MovieSearchCardAdapter.MovieViewHolder> {
-    List<SimpleSearchedMovie> movieList;
+    List<SearchedMovie> movieList;
 
-    public MovieSearchCardAdapter(final ArrayList<SimpleSearchedMovie> movieList) {
+    public MovieSearchCardAdapter(final ArrayList<SearchedMovie> movieList) {
         this.movieList = movieList;
     }
 
@@ -46,7 +47,7 @@ public class MovieSearchCardAdapter extends RecyclerView.Adapter<MovieSearchCard
 
     @Override
     public void onBindViewHolder(final MovieViewHolder movieViewHolder, final int i) {
-        final SimpleSearchedMovie movie = movieList.get(i);
+        final SearchedMovie movie = movieList.get(i);
 
         String posterUrl = "";
         final int posterHeight = 240;
@@ -84,9 +85,13 @@ public class MovieSearchCardAdapter extends RecyclerView.Adapter<MovieSearchCard
             @Override
             public void onClick(View v) {
                 if (movieViewHolder.addMovie.isChecked()) {
-                    //TODO: Legg til filmen
-                    final Movie newMovie = movie.convertFromSearch();
-                    GlobalVars.requestQueue.add(VolleyRequest.getAddMovieRequest(newMovie, movieViewHolder.addMovie));
+                    GlobalVars.requestQueue.add(VolleyRequest.getMovieDetailsFromImdbIdRequest(movie.getImdbID(), new Callback<SearchedMovie>() {
+                        @Override
+                        public void call(final SearchedMovie searchedMovie) {
+                            searchedMovie.setFormat(movieViewHolder.format.getText().toString());
+                            GlobalVars.requestQueue.add(VolleyRequest.getAddMovieRequest(searchedMovie.convertFromSearch(), movieViewHolder.addMovie));
+                        }
+                    }));
                 } else {
                     final Movie movieBySearchIdent = MovieList.getMovieBySearchIdent(movie.getImdbID(), movie.getFormat());
                     if (movieBySearchIdent != null) {
