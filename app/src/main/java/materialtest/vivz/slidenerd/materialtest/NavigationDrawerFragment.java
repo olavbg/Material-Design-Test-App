@@ -18,7 +18,7 @@ import java.util.List;
 import materialtest.vivz.slidenerd.materialtest.utils.GlobalVars;
 import materialtest.vivz.slidenerd.materialtest.utils.Helper;
 import materialtest.vivz.slidenerd.materialtest.utils.MovieList;
-import materialtest.vivz.slidenerd.materialtest.utils.Types;
+import materialtest.vivz.slidenerd.materialtest.utils.Types.ChosenListType;
 
 import static com.joanzapata.android.iconify.Iconify.IconValue;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.logOut;
@@ -39,7 +39,6 @@ public class NavigationDrawerFragment extends Fragment {
     private final List<NavDrawerItem> items = new ArrayList<>();
     private TextView navDrawerLoggedInAs;
     private ListView navDrawerList;
-    private MovieCardAdapter movieCardAdapter;
     private DrawerLayout drawerLayout;
     private VivzAdapter adapter;
 
@@ -70,7 +69,6 @@ public class NavigationDrawerFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Helper.init(getActivity());
-        GlobalVars.init(getActivity());
         mUserLearnedDrawer = Boolean.valueOf(readFromPreferences(KEY_USER_LEARNED_DRAWER, "false"));
         if (savedInstanceState != null) {
             mFromSavedInstanceState = true;
@@ -92,15 +90,15 @@ public class NavigationDrawerFragment extends Fragment {
                 if (items.get(position).title.equals("Log out")) {
                     logOut(getActivity());
                 } else if (items.get(position).title.equals("Movies")) {
-                    setSelectedList(Types.ChosenListType.Your, movieCardAdapter, getActivity());
+                    setSelectedList(ChosenListType.Your);
                     drawerLayout.closeDrawers();
                 } else if (items.get(position).title.equals("Borrowed movies")) {
-                    setSelectedList(Types.ChosenListType.Borrowed, movieCardAdapter, getActivity());
+                    setSelectedList(ChosenListType.Borrowed);
                     drawerLayout.closeDrawers();
                 } else if (items.get(position).title.equals("Lent movies")) {
-                    setSelectedList(Types.ChosenListType.Lent, movieCardAdapter, getActivity());
+                    setSelectedList(ChosenListType.Lent);
                     drawerLayout.closeDrawers();
-                }else if (items.get(position).title.equals("Settings")){
+                } else if (items.get(position).title.equals("Settings")) {
                     showToast("Not implemented yet");
                 }
             }
@@ -109,9 +107,8 @@ public class NavigationDrawerFragment extends Fragment {
         return layout;
     }
 
-    public void setUp(int fragmentId, DrawerLayout drawerLayout, final Toolbar toolbar, MovieCardAdapter movieCardAdapter) {
+    public void setUp(int fragmentId, DrawerLayout drawerLayout, final Toolbar toolbar) {
         View containerView = getActivity().findViewById(fragmentId);
-        this.movieCardAdapter = movieCardAdapter;
         this.drawerLayout = drawerLayout;
         mDrawerToggle = new ActionBarDrawerToggle(getActivity(), drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
             @Override

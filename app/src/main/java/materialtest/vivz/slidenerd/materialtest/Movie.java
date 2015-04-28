@@ -349,8 +349,16 @@ public class Movie {
         return result;
     }
 
+    public void setIsBorrowed(){
+        ut = "0";
+    }
+
     public boolean isBorrowed() {
         return ut.equals("0");
+    }
+
+    public void setIsLent(){
+        ut = "1";
     }
 
     public boolean isLent() {

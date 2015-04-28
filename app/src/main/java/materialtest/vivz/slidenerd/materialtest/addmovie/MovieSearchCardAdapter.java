@@ -18,9 +18,8 @@ import java.util.List;
 import materialtest.vivz.slidenerd.materialtest.Movie;
 import materialtest.vivz.slidenerd.materialtest.R;
 import materialtest.vivz.slidenerd.materialtest.utils.Callback;
-import materialtest.vivz.slidenerd.materialtest.utils.GlobalVars;
+import materialtest.vivz.slidenerd.materialtest.utils.Helper;
 import materialtest.vivz.slidenerd.materialtest.utils.MovieList;
-import materialtest.vivz.slidenerd.materialtest.utils.VolleyRequest;
 
 import static android.text.TextUtils.isEmpty;
 
@@ -60,7 +59,7 @@ public class MovieSearchCardAdapter extends RecyclerView.Adapter<MovieSearchCard
                     .resize(220, 354)
                     .centerCrop()
                     .into(movieViewHolder.poster);
-        }else{
+        } else {
             movieViewHolder.poster.setImageDrawable(null);
         }
 
@@ -85,17 +84,18 @@ public class MovieSearchCardAdapter extends RecyclerView.Adapter<MovieSearchCard
             @Override
             public void onClick(View v) {
                 if (movieViewHolder.addMovie.isChecked()) {
-                    GlobalVars.requestQueue.add(VolleyRequest.getMovieDetailsFromImdbIdRequest(movie.getImdbID(), new Callback<SearchedMovie>() {
+                    Helper.getMovieDetailsFromImdbId(movie.getImdbID(), new Callback<SearchedMovie>() {
                         @Override
                         public void call(final SearchedMovie searchedMovie) {
                             searchedMovie.setFormat(movieViewHolder.format.getText().toString());
-                            GlobalVars.requestQueue.add(VolleyRequest.getAddMovieRequest(searchedMovie.convertFromSearch(), movieViewHolder.addMovie));
+                            Helper.addMovie(searchedMovie.convertFromSearch(), movieViewHolder.addMovie);
                         }
-                    }));
+                    });
                 } else {
                     final Movie movieBySearchIdent = MovieList.getMovieBySearchIdent(movie.getImdbID(), movie.getFormat());
                     if (movieBySearchIdent != null) {
-                        GlobalVars.requestQueue.add(VolleyRequest.getDeleteMovieRequest(movieBySearchIdent, movieViewHolder.addMovie));
+//                        GlobalVars.requestQueue.add(VolleyRequest.getDeleteMovieRequest(movieBySearchIdent, movieViewHolder.addMovie));
+                        Helper.deleteMovie(movieBySearchIdent, movieViewHolder.addMovie);
                     }
                 }
             }

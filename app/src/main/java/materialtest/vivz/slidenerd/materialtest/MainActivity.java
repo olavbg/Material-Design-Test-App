@@ -2,7 +2,6 @@ package materialtest.vivz.slidenerd.materialtest;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -22,28 +21,27 @@ import com.getbase.floatingactionbutton.FloatingActionsMenu;
 import com.joanzapata.android.iconify.IconDrawable;
 import com.joanzapata.android.iconify.Iconify;
 
-import jp.wasabeef.recyclerview.animators.SlideInRightAnimator;
-import jp.wasabeef.recyclerview.animators.adapters.AlphaInAnimationAdapter;
+import java.util.List;
+
+import de.greenrobot.event.EventBus;
+import materialtest.vivz.slidenerd.materialtest.Events.AddMovieEvent;
+import materialtest.vivz.slidenerd.materialtest.Events.MovieDeletedEvent;
+import materialtest.vivz.slidenerd.materialtest.Events.SetMovieListEvent;
 import materialtest.vivz.slidenerd.materialtest.addmovie.AddMovieActivity;
-import materialtest.vivz.slidenerd.materialtest.utils.GlobalVars;
+import materialtest.vivz.slidenerd.materialtest.recyclerview.MovieCardAdapter;
+import materialtest.vivz.slidenerd.materialtest.utils.Callback;
 import materialtest.vivz.slidenerd.materialtest.utils.Helper;
 import materialtest.vivz.slidenerd.materialtest.utils.MovieList;
-import materialtest.vivz.slidenerd.materialtest.utils.Types;
 
-import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.loggedInUser;
-import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.requestQueue;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.isConnected;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.logOut;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.showToast;
-import static materialtest.vivz.slidenerd.materialtest.utils.MovieList.setSelectedList;
-import static materialtest.vivz.slidenerd.materialtest.utils.VolleyRequest.getMoviesRequest;
 
 
 public class MainActivity extends ActionBarActivity {
     private NavigationDrawerFragment drawerFragment;
     private SwipeRefreshLayout swipeRefreshLayout;
     private MovieCardAdapter adapter;
-    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,17 +103,17 @@ public class MainActivity extends ActionBarActivity {
 
     private void initHelperClasses() {
         Helper.init(this);
-        GlobalVars.init(this);
+        EventBus.getDefault().register(this);
     }
 
     private void setUpToolBarAndNavDrawer() {
         final Toolbar toolbar = (Toolbar) findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        adapter = new MovieCardAdapter(MovieList.movies);
+        adapter = new MovieCardAdapter(this);
         drawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
-        drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar, adapter);
+        drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar);
     }
 
     private void setUpCardView() {
@@ -123,10 +121,12 @@ public class MainActivity extends ActionBarActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                AsyncTask.execute(new Runnable() {
+                Helper.getMovies(new Callback<List<Movie>>() {
                     @Override
-                    public void run() {
-                        loadMovies();
+                    public void call(List<Movie> movies) {
+                        swipeRefreshLayout.setRefreshing(false);
+                        MovieList.addMovies(movies);
+                        MovieList.refreshList();
                     }
                 });
             }
@@ -135,12 +135,12 @@ public class MainActivity extends ActionBarActivity {
         final Display display = ((WindowManager) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         int rotation = display.getRotation();
 
-        recyclerView = (RecyclerView) findViewById(R.id.cardView);
+        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.cardView);
         final StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(rotation == OrientationHelper.HORIZONTAL ? 1 : 2, StaggeredGridLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setAdapter(adapter);
-        recyclerView.setItemAnimator(new SlideInRightAnimator());
-        recyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
+//        recyclerView.setItemAnimator(new SlideInRightAnimator());
+//        recyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
 
         //TODO: Setup fastscroller når klar: https://android-arsenal.com/details/1/1582
 //        final VerticalRecyclerViewFastScroller fastScroller = (VerticalRecyclerViewFastScroller) findViewById(R.id.fast_scroller);
@@ -151,7 +151,15 @@ public class MainActivity extends ActionBarActivity {
     private void loadMovies() {
         MovieList.loadCachedMoviesIfAny();
         if (isConnected()) {
-            requestQueue.add(getMoviesRequest(loggedInUser.getBrukerID(), adapter, swipeRefreshLayout, this));
+            Helper.getMovies(new Callback<List<Movie>>() {
+                @Override
+                public void call(List<Movie> movies) {
+                    MovieList.clearAll();
+                    MovieList.addMovies(movies);
+                    MovieList.refreshList();
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            });
         } else if (!MovieList.getAllMovies().isEmpty()) {
             showToast("No internet connection. Only showing locally stored movies..");
             swipeRefreshLayout.setRefreshing(false);
@@ -159,14 +167,39 @@ public class MainActivity extends ActionBarActivity {
             showToast("No internet connection..");
             swipeRefreshLayout.setRefreshing(false);
         }
-        setSelectedList(Types.ChosenListType.Your, adapter, this);
         drawerFragment.updateDrawer();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Helper.init(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         MovieList.cacheMoviesLocally();
+    }
+
+    //Events
+    @SuppressWarnings("unused")
+    public void onEventMainThread(AddMovieEvent event) {
+        MovieList.add(event.getMovie());
+        MovieList.sortMoviesByTitle();
+        adapter.addMovie(MovieList.movies.indexOf(event.getMovie()), event.getMovie());
+        showToast(event.getMovie().getTittel() + " on " + event.getMovie().getFormat() + " added to the cloud");
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(SetMovieListEvent event) {
+        adapter.setData(event.getMovies());
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(MovieDeletedEvent event) {
+        adapter.deleteMovie(event.getMovie());
+        showToast(event.getMovie().getTittel() + " on " + event.getMovie().getFormat() + " deleted from the cloud");
     }
 
     @Override
@@ -185,17 +218,7 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-//            showToast("Not implemented yet..");
-
-            final Movie movie = new Movie();
-            movie.setTittel("0TEST");
-            movie.setFormat("HD-DVD");
-
-            MovieList.sortMoviesByTitle();
-            adapter.addItem(MovieList.movies.indexOf(movie), movie);
-            recyclerView.scrollToPosition(MovieList.movies.indexOf(movie));
-
-            showToast("Added test movie. Size: " + MovieList.selectedList.size());
+            showToast("Not implemented yet..");
             return true;
         } else if (id == R.id.action_logOut) {
             logOut(this);

@@ -3,7 +3,6 @@ package materialtest.vivz.slidenerd.materialtest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,20 +11,14 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.StringRequest;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.google.gson.reflect.TypeToken;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
 
 import materialtest.vivz.slidenerd.materialtest.utils.API_CONST;
+import materialtest.vivz.slidenerd.materialtest.utils.Callback;
 import materialtest.vivz.slidenerd.materialtest.utils.GlobalVars;
 import materialtest.vivz.slidenerd.materialtest.utils.Helper;
-import materialtest.vivz.slidenerd.materialtest.utils.VolleyRequest;
 
 import static android.text.TextUtils.isEmpty;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.hideProgressDialog;
@@ -47,7 +40,6 @@ public class LoginActivity extends ActionBarActivity {
         txtPassword = (EditText) findViewById(R.id.txtPassword);
 
         Helper.init(this);
-        GlobalVars.init(this);
 
         final Bruker loggedInUser = getLoggedInUser();
         if (loggedInUser != null) {
@@ -111,43 +103,12 @@ public class LoginActivity extends ActionBarActivity {
         }
 
         // Adding request to request queue
-        Helper.showProgressDialog("Signing in..");
-        GlobalVars.requestQueue.add(getLoginRequest(username, password));
-    }
-
-    private StringRequest getLoginRequest(final String username, final String password) {
-        return new StringRequest(Request.Method.POST, API_CONST.LOGIN_URL,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d("LOGIN RESPONSE", response);
-                        final Bruker bruker = GlobalVars.gson.fromJson(response, Bruker.class);
-                        if (isEmpty(bruker.getErr_msg())) {
-                            loginUser(bruker);
-                        } else {
-                            showToast(bruker.getErr_msg());
-                        }
-                        hideProgressDialog();
-                    }
-                }, new Response.ErrorListener() {
+        Helper.logIn(username, password, new Callback<Bruker>() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                VolleyLog.d("LOGIN ERROR", "Error: " + error.getMessage());
-                showToast("Ops! Something went wrong when connecting to the cloud! Please try again later..");
-                // hide the progress dialog
-                hideProgressDialog();
+            public void call(Bruker bruker) {
+                loginUser(bruker);
             }
-        }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("tag", API_CONST.LOGIN_TAG);
-                params.put("username", username);
-                params.put("password", password);
-                params.put("hash", "true");
-                return params;
-            }
-        };
+        });
     }
 
     private void loginUser(final Bruker bruker) {
@@ -167,7 +128,22 @@ public class LoginActivity extends ActionBarActivity {
 
         // Adding request to request queue
         Helper.showProgressDialog("Requesting new password..");
-        GlobalVars.requestQueue.add(VolleyRequest.getNewPasswordRequest(email));
+        Ion.with(this).load(API_CONST.LOGIN_URL)
+                .setBodyParameter("tag", API_CONST.FORGOT_PASSWORD_TAG)
+                .setBodyParameter("email", email)
+                .as(new TypeToken<JsonPOSTResponse>() {
+                })
+                .setCallback(new FutureCallback<JsonPOSTResponse>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonPOSTResponse response) {
+                        if (e != null || !response.getErr_msg().isEmpty()) {
+                            showToast("Oops! Something went wrong when connecting to the cloud!");
+                        } else {
+                            showToast("New password sent to " + email);
+                        }
+                        hideProgressDialog();
+                    }
+                });
     }
 
     public void registerNewAccount(View view) {

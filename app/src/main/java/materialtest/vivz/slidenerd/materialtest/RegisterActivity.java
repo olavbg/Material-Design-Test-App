@@ -3,28 +3,16 @@ package materialtest.vivz.slidenerd.materialtest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.StringRequest;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import materialtest.vivz.slidenerd.materialtest.utils.API_CONST;
+import materialtest.vivz.slidenerd.materialtest.utils.Callback;
 import materialtest.vivz.slidenerd.materialtest.utils.GlobalVars;
 import materialtest.vivz.slidenerd.materialtest.utils.Helper;
 
 import static android.text.TextUtils.isEmpty;
-import static materialtest.vivz.slidenerd.materialtest.utils.Helper.hideProgressDialog;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.saveToPreferences;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.showToast;
 
@@ -39,7 +27,7 @@ public class RegisterActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        
+
         txtUsername = (EditText) findViewById(R.id.txtUsername);
         txtEmail = (EditText) findViewById(R.id.txtEmail);
         txtPassword = (EditText) findViewById(R.id.txtPassword);
@@ -95,7 +83,7 @@ public class RegisterActivity extends ActionBarActivity {
             txtPassword.requestFocus();
             return;
         }
-        if (password.length() < 6){
+        if (password.length() < 6) {
             showToast("Your password must contain at least 6 characters..");
             txtPassword.requestFocus();
             return;
@@ -105,50 +93,18 @@ public class RegisterActivity extends ActionBarActivity {
             txtRepeatPassword.requestFocus();
             return;
         }
-        if (!password.equals(repeatPassword)){
+        if (!password.equals(repeatPassword)) {
             showToast("Your password and repeated passwords do not match..");
             return;
         }
 
         // Adding request to request queue
-        Helper.showProgressDialog("Registering..");
-        GlobalVars.requestQueue.add(getRegisterRequest(username, email, password));
-    }
-
-    public StringRequest getRegisterRequest(final String username, final String email, final String password) {
-        return new StringRequest(Request.Method.POST,
-                API_CONST.LOGIN_URL,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d("REGISTRATION RESPONSE", response);
-                        final Bruker bruker = GlobalVars.gson.fromJson(response, Bruker.class);
-                        if (isEmpty(bruker.getErr_msg())) {
-                            loginUser(bruker);
-                        } else {
-                            showToast(bruker.getErr_msg());
-                        }
-                        hideProgressDialog();
-                    }
-                }, new Response.ErrorListener() {
+        Helper.registerNewUser(username, email, password, new Callback<Bruker>() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                VolleyLog.d("REGISTRATION ERROR", "Error: " + error.getMessage());
-                showToast("Ops! Something went wrong when connecting to the cloud! Please try again later..");
-                // hide the progress dialog
-                hideProgressDialog();
+            public void call(Bruker bruker) {
+                loginUser(bruker);
             }
-        }) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("tag", API_CONST.REGISTER_TAG);
-                params.put("username", username);
-                params.put("password", password);
-                params.put("email", email);
-                return params;
-            }
-        };
+        });
     }
 
     private void loginUser(final Bruker bruker) {

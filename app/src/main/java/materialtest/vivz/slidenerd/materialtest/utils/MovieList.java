@@ -9,10 +9,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
-import materialtest.vivz.slidenerd.materialtest.MainActivity;
+import de.greenrobot.event.EventBus;
+import materialtest.vivz.slidenerd.materialtest.Events.SetMovieListEvent;
 import materialtest.vivz.slidenerd.materialtest.Movie;
-import materialtest.vivz.slidenerd.materialtest.MovieCardAdapter;
+import materialtest.vivz.slidenerd.materialtest.recyclerview.MovieCardAdapter;
 
 import static android.text.TextUtils.isEmpty;
 import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.PREF_KEY_BORROWED_MOVIE_CACHE;
@@ -35,21 +37,13 @@ public class MovieList {
     public static Types.ChosenListType selectedListType = Types.ChosenListType.Your;
     public static ArrayList<Movie> selectedList = new ArrayList<>();
 
-    public static void setSelectedList(final Types.ChosenListType chosenListType, final MovieCardAdapter movieCardAdapter, Activity activity) {
+    public static void setSelectedList(final Types.ChosenListType chosenListType) {
         selectedListType = chosenListType;
-        selectedList.clear();
-        for (Movie movie : typeArrayListMap.get(selectedListType)) {
-            selectedList.add(movie);
-        }
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                movieCardAdapter.notifyDataSetChanged();
-            }
-        });
+        selectedList = typeArrayListMap.get(selectedListType);
+        EventBus.getDefault().post(new SetMovieListEvent(selectedList));
     }
 
-    public static int addMovie(final Movie movie) {
+    public static int add(final Movie movie) {
         if (!userHasMovie(movie)) {
             if (movie.isBorrowed()) {
                 borrowedMovies.add(movie);
@@ -61,6 +55,13 @@ public class MovieList {
             }
         }
         return -1;
+    }
+
+    public static void addMovies(final List<Movie> movies) {
+        for (Movie movie : movies) {
+            add(movie);
+        }
+        cacheMoviesLocally();
     }
 
     public static boolean userHasMovie(final Movie movie) {
@@ -187,6 +188,7 @@ public class MovieList {
                     lentMovies.add(gson.fromJson(jsonArray.getString(i), Movie.class));
                 }
             }
+            refreshList();
         } catch (JSONException e) {
             showToast("Ops! Something went wrong when reading movies from local storage! Please try again later..");
             e.printStackTrace();
@@ -233,15 +235,9 @@ public class MovieList {
         cacheMoviesLocally();
     }
 
-    public static void refreshList(final MovieCardAdapter adapter, final MainActivity activity) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                adapter.notifyDataSetChanged();
-                MovieList.sortMoviesByTitle();
-                setSelectedList(selectedListType, adapter,activity);
-            }
-        });
+    public static void refreshList() {
+        MovieList.sortMoviesByTitle();
+        setSelectedList(selectedListType);
     }
 
     public static class MovieTitleComparator implements Comparator<Movie> {

@@ -21,12 +21,12 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import materialtest.vivz.slidenerd.materialtest.R;
-import materialtest.vivz.slidenerd.materialtest.utils.GlobalVars;
+import materialtest.vivz.slidenerd.materialtest.utils.Callback;
 import materialtest.vivz.slidenerd.materialtest.utils.Helper;
-import materialtest.vivz.slidenerd.materialtest.utils.VolleyRequest;
 import me.dm7.barcodescanner.zbar.Result;
 import me.dm7.barcodescanner.zbar.ZBarScannerView;
 
+import static materialtest.vivz.slidenerd.materialtest.utils.Helper.isConnected;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.showToast;
 
 public class FragmentClasses {
@@ -51,7 +51,6 @@ public class FragmentClasses {
             formats = (Spinner) v.findViewById(R.id.movieFormats);
             recyclerView = (RecyclerView) v.findViewById(R.id.searchResults);
 
-            GlobalVars.init(getActivity());
             Helper.init(getActivity());
 
             adapter = new MovieSearchCardAdapter(suggestions);
@@ -67,13 +66,25 @@ public class FragmentClasses {
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    GlobalVars.requestQueue.stop();
-                    GlobalVars.requestQueue.start();
                     suggestions.clear();
                     adapter.notifyDataSetChanged();
                     if (txtTitle.getText().length() > 1) {
-                        if (Helper.isConnected()) {
-                            GlobalVars.requestQueue.add(VolleyRequest.getMovieSearchRequest(txtTitle.getText().toString().trim(), formats.getSelectedItem().toString(), suggestions, adapter, getActivity()));
+                        if (isConnected()) {
+                            Helper.searchByTitle(txtTitle.getText().toString().trim(), formats.getSelectedItem().toString(), new Callback<ArrayList<SearchedMovie>>() {
+                                @Override
+                                public void call(ArrayList<SearchedMovie> searchedMovies) {
+                                    suggestions.clear();
+                                    for(final SearchedMovie searchedMovie : searchedMovies){
+                                        suggestions.add(searchedMovie);
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                adapter.notifyItemInserted(suggestions.indexOf(searchedMovie));
+                                            }
+                                        });
+                                    }
+                                }
+                            });
                         }
                     }
                 }
@@ -81,8 +92,7 @@ public class FragmentClasses {
                 @Override
                 public void afterTextChanged(Editable s) {
                     if (txtTitle.getText().toString().trim().isEmpty()) {
-                        GlobalVars.requestQueue.stop();
-                        GlobalVars.requestQueue.start();
+                        Helper.abortFutures();
                     }
                 }
             });
@@ -152,7 +162,7 @@ public class FragmentClasses {
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle state) {
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, final Bundle state) {
 //            return inflater.inflate(R.layout.fragment_quick_add, container, false);
 
             mScannerView = new ZBarScannerView(getActivity());
@@ -163,6 +173,14 @@ public class FragmentClasses {
                 mFlash = false;
                 mAutoFocus = true;
             }
+
+            mScannerView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mFlash = !mFlash;
+                    mScannerView.setFlash(mFlash);
+                }
+            });
             return mScannerView;
         }
 
@@ -191,7 +209,8 @@ public class FragmentClasses {
         @Override
         public void handleResult(Result result) {
             showToast("Searching...", Toast.LENGTH_SHORT);
-            GlobalVars.requestQueue.add(VolleyRequest.getSearchEANRequest(result.getContents(), mScannerView));
+//            GlobalVars.requestQueue.add(VolleyRequest.getSearchEANRequest(result.getContents(), mScannerView));
+            Helper.searchEANAndAddMovie(result.getContents(), mScannerView);
         }
 
         public void enableCameraCamera() {
