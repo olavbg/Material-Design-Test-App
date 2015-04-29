@@ -14,6 +14,7 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 import materialtest.vivz.slidenerd.materialtest.Events.SetMovieListEvent;
 import materialtest.vivz.slidenerd.materialtest.Movie;
+import materialtest.vivz.slidenerd.materialtest.R;
 import materialtest.vivz.slidenerd.materialtest.recyclerview.MovieCardAdapter;
 
 import static android.text.TextUtils.isEmpty;
@@ -21,6 +22,7 @@ import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.PREF_KEY
 import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.PREF_KEY_LENT_MOVIE_CACHE;
 import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.PREF_KEY_MOVIE_CACHE;
 import static materialtest.vivz.slidenerd.materialtest.utils.GlobalVars.gson;
+import static materialtest.vivz.slidenerd.materialtest.utils.Helper.context;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.readFromPreferences;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.saveToPreferences;
 import static materialtest.vivz.slidenerd.materialtest.utils.Helper.showToast;
@@ -190,7 +192,7 @@ public class MovieList {
             }
             refreshList();
         } catch (JSONException e) {
-            showToast("Ops! Something went wrong when reading movies from local storage! Please try again later..");
+            showToast(context.getString(R.string.error_readingFromCache));
             e.printStackTrace();
         }
     }

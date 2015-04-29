@@ -20,9 +20,11 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import materialtest.vivz.slidenerd.materialtest.Movie;
 import materialtest.vivz.slidenerd.materialtest.R;
 import materialtest.vivz.slidenerd.materialtest.utils.Callback;
 import materialtest.vivz.slidenerd.materialtest.utils.Helper;
+import materialtest.vivz.slidenerd.materialtest.utils.MovieList;
 import me.dm7.barcodescanner.zbar.Result;
 import me.dm7.barcodescanner.zbar.ZBarScannerView;
 
@@ -135,7 +137,15 @@ public class FragmentClasses {
         }
 
         public void addNewMovie() {
-            Toast.makeText(getActivity(), "Adding movie", Toast.LENGTH_SHORT).show();
+            final String title = txtTitle.getText().toString().trim();
+            final String format = formats.getSelectedItem().toString();
+            if (MovieList.getMovieByIdent(title, format) == null){
+                Toast.makeText(getActivity(), getActivity().getString(R.string.addingMovie), Toast.LENGTH_SHORT).show();
+                final Movie movie = new Movie(title, format);
+                Helper.addMovie(movie, null);
+            }else{
+                showToast("You already have "+title+" on "+format);
+            }
         }
     }
 
@@ -208,8 +218,7 @@ public class FragmentClasses {
 
         @Override
         public void handleResult(Result result) {
-            showToast("Searching...", Toast.LENGTH_SHORT);
-//            GlobalVars.requestQueue.add(VolleyRequest.getSearchEANRequest(result.getContents(), mScannerView));
+            showToast(getActivity().getString(R.string.searching), Toast.LENGTH_SHORT);
             Helper.searchEANAndAddMovie(result.getContents(), mScannerView);
         }
 

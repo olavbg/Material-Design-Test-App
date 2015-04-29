@@ -161,10 +161,10 @@ public class MainActivity extends ActionBarActivity {
                 }
             });
         } else if (!MovieList.getAllMovies().isEmpty()) {
-            showToast("No internet connection. Only showing locally stored movies..");
+            showToast(getString(R.string.noInternetOnlyShowingCachedMovies));
             swipeRefreshLayout.setRefreshing(false);
         } else {
-            showToast("No internet connection..");
+            showToast(getString(R.string.noInternetConnection));
             swipeRefreshLayout.setRefreshing(false);
         }
         drawerFragment.updateDrawer();
@@ -182,7 +182,6 @@ public class MainActivity extends ActionBarActivity {
         MovieList.cacheMoviesLocally();
     }
 
-    //Events
     @SuppressWarnings("unused")
     public void onEventMainThread(AddMovieEvent event) {
         MovieList.add(event.getMovie());
@@ -198,6 +197,7 @@ public class MainActivity extends ActionBarActivity {
 
     @SuppressWarnings("unused")
     public void onEventMainThread(MovieDeletedEvent event) {
+        MovieList.removeMovie(event.getMovie());
         adapter.deleteMovie(event.getMovie());
         showToast(event.getMovie().getTittel() + " on " + event.getMovie().getFormat() + " deleted from the cloud");
     }
@@ -218,7 +218,7 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            showToast("Not implemented yet..");
+            showToast(getString(R.string.notImplementedYet));
             return true;
         } else if (id == R.id.action_logOut) {
             logOut(this);

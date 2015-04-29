@@ -11,13 +11,13 @@ import com.joanzapata.android.iconify.Iconify;
 
 import java.util.List;
 
-public class VivzAdapter extends ArrayAdapter<NavDrawerItem> {
+public class NavDrawerItemAdapter extends ArrayAdapter<NavDrawerItem> {
 
-    public VivzAdapter(Context context, int textViewResourceId) {
+    public NavDrawerItemAdapter(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
     }
 
-    public VivzAdapter(Context context, int resource, List<NavDrawerItem> items) {
+    public NavDrawerItemAdapter(Context context, int resource, List<NavDrawerItem> items) {
         super(context, resource, items);
     }
 

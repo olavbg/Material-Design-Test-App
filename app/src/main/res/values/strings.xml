@@ -33,5 +33,28 @@
     </string-array>
 
     <string name="hello_world">Hello world!</string>
+    <string name="error.connectingToCloud">Oops! Something went wrong when connecting to the cloud! Please try again later..</string>
+    <string name="noInternetOnlyShowingCachedMovies">No internet connection. Only showing locally stored movies..</string>
+    <string name="noInternetConnection">No internet connection..</string>
+    <string name="notImplementedYet">Not implemented yet..</string>
+    <string name="logOut">Log out</string>
+    <string name="movies">Movies</string>
+    <string name="borrowedMovies">Borrowed movies</string>
+    <string name="lentMovies">Lent movies</string>
+    <string name="settings">Settings</string>
+    <string name="addingMovie">Adding movie</string>
+    <string name="searching">Searching..</string>
+    <string name="error.readingFromCache">Ops! Something went wrong when reading movies from local storage! Please try again later..</string>
+    <string name="error.whenDeletingMovie">Oops! Something went wrong when deleting movie!</string>
+    <string name="signingIn">Signing in..</string>
+    <string name="registering">Registering..</string>
+    <string name="toast.enterUsername">Please enter a username</string>
+    <string name="toast.enterPassword">Please enter a password</string>
+    <string name="toast.enterEmailInTextField">Please enter your email in the email/username field</string>
+    <string name="requestingNewPassword">Requesting new password..</string>
+    <string name="toast.enterEmail">Please enter an email</string>
+    <string name="error.passwordAtLeastSixChars">Your password must contain at least 6 characters..</string>
+    <string name="toast.repeatPassword">Please repeat your password</string>
+    <string name="toast.repeatedPasswordNotMatch">Your password and repeated passwords do not match..</string>
 
 </resources>

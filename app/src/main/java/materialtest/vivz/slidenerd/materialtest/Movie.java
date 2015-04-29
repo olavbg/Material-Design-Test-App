@@ -34,6 +34,12 @@ public class Movie {
         this.setBrukerID(GlobalVars.loggedInUser.getBrukerID());
     }
 
+    public Movie(String tittel, String format) {
+        this.setBrukerID(GlobalVars.loggedInUser.getBrukerID());
+        this.tittel = tittel;
+        this.format = format;
+    }
+
     public Movie(int filmID, String tittel, String format, String lagtTil, int brukerID, String type, String year, String rated, String released, String runtime, String genre, String director, String writer, String actor, String tagline, String plot, String trailer, String imdb_id, String trakt_id, String poster, String ut, String dato, String utlanID, String err_msg) {
         setFilmID(filmID);
         setTittel(tittel);

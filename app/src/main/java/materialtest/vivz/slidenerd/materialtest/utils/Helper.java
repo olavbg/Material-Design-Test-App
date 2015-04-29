@@ -31,6 +31,7 @@ import materialtest.vivz.slidenerd.materialtest.Events.MovieDeletedEvent;
 import materialtest.vivz.slidenerd.materialtest.JsonPOSTResponse;
 import materialtest.vivz.slidenerd.materialtest.LoginActivity;
 import materialtest.vivz.slidenerd.materialtest.Movie;
+import materialtest.vivz.slidenerd.materialtest.R;
 import materialtest.vivz.slidenerd.materialtest.addmovie.EANSearchedMovie;
 import materialtest.vivz.slidenerd.materialtest.addmovie.SearchedMovie;
 import me.dm7.barcodescanner.zbar.ZBarScannerView;
@@ -129,7 +130,7 @@ public class Helper {
                     @Override
                     public void onCompleted(Exception e, Movie addedMovie) {
                         if (e != null || !addedMovie.getErr_msg().isEmpty()) {
-                            showToast("Oops! Something went wrong when connecting to the cloud!");
+                            showToast(context.getString(R.string.error_connectingToCloud));
                             uncheckCheckbox(checkBox);
                         } else {
                             EventBus.getDefault().post(new AddMovieEvent(addedMovie));
@@ -199,7 +200,7 @@ public class Helper {
                     @Override
                     public void onCompleted(Exception e, final EANSearchedMovie searchedMovie) {
                         if (e != null || !searchedMovie.getErr_msg().isEmpty()) {
-                            showToast("Oops! Something went wrong when connecting to the cloud!");
+                            showToast(context.getString(R.string.error_connectingToCloud));
                             mScannerView.startCamera();
                         } else if (MovieList.getMovieByIdent(searchedMovie.getTitle(), searchedMovie.getFormat()) == null) {
                             validateFormat(searchedMovie);
@@ -241,12 +242,10 @@ public class Helper {
                     @Override
                     public void onCompleted(Exception e, JsonPOSTResponse response) {
                         if (e != null || !TextUtils.isEmpty(response.getErr_msg())) {
-                            showToast("Oops! Something went wrong when deleting movie!");
+                            showToast(context.getString(R.string.error_whenDeletingMovie));
                             hideProgressDialog();
                             checkBox.setChecked(true);
                         } else {
-                            MovieList.removeMovie(movie);
-                            MovieList.cacheMoviesLocally();
                             EventBus.getDefault().post(new MovieDeletedEvent(movie));
                         }
                     }
@@ -261,7 +260,7 @@ public class Helper {
                     @Override
                     public void onCompleted(Exception e, JsonObject result) {
                         if (error(e, result)) {
-                            showToast("Oops! Something went wrong when connecting to the cloud!");
+                            showToast(context.getString(R.string.error_connectingToCloud));
                             hideProgressDialog();
                         } else if (result != null && result.has("Search")) {
                             final JsonArray movies = result.get("Search").getAsJsonArray();
@@ -288,7 +287,7 @@ public class Helper {
     }
 
     public static void logIn(final String username, final String password, final Callback<Bruker> callback) {
-        showProgressDialog("Signing in..");
+        showProgressDialog(context.getString(R.string.signingIn));
         Ion.with(context).load(API_CONST.LOGIN_URL)
                 .setBodyParameter("tag", API_CONST.LOGIN_TAG)
                 .setBodyParameter("username", username)
@@ -300,7 +299,7 @@ public class Helper {
                     @Override
                     public void onCompleted(Exception e, Bruker bruker) {
                         if (e != null || !TextUtils.isEmpty(bruker.getErr_msg())) {
-                            showToast("Oops! Something went wrong when connecting to the cloud!");
+                            showToast(context.getString(R.string.error_connectingToCloud));
                             hideProgressDialog();
                         } else {
                             callback.call(bruker);
@@ -310,7 +309,7 @@ public class Helper {
     }
 
     public static void registerNewUser(final String username, final String email, final String password, final Callback<Bruker> callback) {
-        Helper.showProgressDialog("Registering..");
+        Helper.showProgressDialog(context.getString(R.string.registering));
         Ion.with(context).load(API_CONST.LOGIN_URL)
                 .setBodyParameter("tag", API_CONST.REGISTER_TAG)
                 .setBodyParameter("username", username)
@@ -322,7 +321,7 @@ public class Helper {
                     @Override
                     public void onCompleted(Exception e, Bruker bruker) {
                         if (e != null || !TextUtils.isEmpty(bruker.getErr_msg())) {
-                            showToast("Oops! Something went wrong when connecting to the cloud!");
+                            showToast(context.getString(R.string.error_connectingToCloud));
                             hideProgressDialog();
                         } else {
                             callback.call(bruker);

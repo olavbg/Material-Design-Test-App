@@ -92,12 +92,12 @@ public class LoginActivity extends ActionBarActivity {
         final String password = txtPassword.getText().toString().trim();
 
         if (isEmpty(username)) {
-            showToast("Please enter a username");
+            showToast(getString(R.string.toast_enterUsername));
             txtUsername.requestFocus();
             return;
         }
         if (isEmpty(password)) {
-            showToast("Please enter a password");
+            showToast(getString(R.string.toast_enterPassword));
             txtPassword.requestFocus();
             return;
         }
@@ -122,12 +122,12 @@ public class LoginActivity extends ActionBarActivity {
     public void forgotPassword(View view) {
         final String email = txtUsername.getText().toString().trim();
         if (isEmpty(email)) {
-            showToast("Please enter your email in the email/username field");
+            showToast(getString(R.string.toast_enterEmailInTextField));
             return;
         }
 
         // Adding request to request queue
-        Helper.showProgressDialog("Requesting new password..");
+        Helper.showProgressDialog(getString(R.string.requestingNewPassword));
         Ion.with(this).load(API_CONST.LOGIN_URL)
                 .setBodyParameter("tag", API_CONST.FORGOT_PASSWORD_TAG)
                 .setBodyParameter("email", email)
@@ -137,7 +137,7 @@ public class LoginActivity extends ActionBarActivity {
                     @Override
                     public void onCompleted(Exception e, JsonPOSTResponse response) {
                         if (e != null || !response.getErr_msg().isEmpty()) {
-                            showToast("Oops! Something went wrong when connecting to the cloud!");
+                            showToast(getString(R.string.error_connectingToCloud));
                         } else {
                             showToast("New password sent to " + email);
                         }

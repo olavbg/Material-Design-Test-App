@@ -40,7 +40,7 @@ public class NavigationDrawerFragment extends Fragment {
     private TextView navDrawerLoggedInAs;
     private ListView navDrawerList;
     private DrawerLayout drawerLayout;
-    private VivzAdapter adapter;
+    private NavDrawerItemAdapter adapter;
 
     public NavigationDrawerFragment() {
         // Required empty public constructor
@@ -48,12 +48,12 @@ public class NavigationDrawerFragment extends Fragment {
 
     public void updateDrawer() {
         items.clear();
-        items.add(new NavDrawerItem(IconValue.fa_film.character(), "Movies", MovieList.getYourMovies().size()));
-        items.add(new NavDrawerItem(IconValue.fa_mail_reply.character(), "Borrowed movies", MovieList.getBorrowedMovies().size()));
-        items.add(new NavDrawerItem(IconValue.fa_mail_forward.character(), "Lent movies", MovieList.getLentMovies().size()));
+        items.add(new NavDrawerItem(IconValue.fa_film.character(), getActivity().getString(R.string.movies), MovieList.getYourMovies().size()));
+        items.add(new NavDrawerItem(IconValue.fa_mail_reply.character(), getActivity().getString(R.string.borrowedMovies), MovieList.getBorrowedMovies().size()));
+        items.add(new NavDrawerItem(IconValue.fa_mail_forward.character(), getActivity().getString(R.string.lentMovies), MovieList.getLentMovies().size()));
         items.add(new NavDrawerItem(""));//Separator
-        items.add(new NavDrawerItem(IconValue.fa_user_times.character(), "Log out", -1));
-        items.add(new NavDrawerItem(IconValue.fa_wrench.character(), "Settings", -1));
+        items.add(new NavDrawerItem(IconValue.fa_user_times.character(), getActivity().getString(R.string.logOut), -1));
+        items.add(new NavDrawerItem(IconValue.fa_wrench.character(), getActivity().getString(R.string.settings), -1));
 
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -82,24 +82,24 @@ public class NavigationDrawerFragment extends Fragment {
         final View layout = inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
         navDrawerList = (ListView) layout.findViewById(R.id.navDrawerList);
         navDrawerLoggedInAs = (TextView) layout.findViewById(R.id.navDrawerLoggedInAs);
-        adapter = new VivzAdapter(getActivity(), R.layout.nav_drawer_row, items);
+        adapter = new NavDrawerItemAdapter(getActivity(), R.layout.nav_drawer_row, items);
         navDrawerList.setAdapter(adapter);
         navDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (items.get(position).title.equals("Log out")) {
+                if (items.get(position).title.equals(getActivity().getString(R.string.logOut))) {
                     logOut(getActivity());
-                } else if (items.get(position).title.equals("Movies")) {
+                } else if (items.get(position).title.equals(getActivity().getString(R.string.movies))) {
                     setSelectedList(ChosenListType.Your);
                     drawerLayout.closeDrawers();
-                } else if (items.get(position).title.equals("Borrowed movies")) {
+                } else if (items.get(position).title.equals(getActivity().getString(R.string.borrowedMovies))) {
                     setSelectedList(ChosenListType.Borrowed);
                     drawerLayout.closeDrawers();
-                } else if (items.get(position).title.equals("Lent movies")) {
+                } else if (items.get(position).title.equals(getActivity().getString(R.string.lentMovies))) {
                     setSelectedList(ChosenListType.Lent);
                     drawerLayout.closeDrawers();
-                } else if (items.get(position).title.equals("Settings")) {
-                    showToast("Not implemented yet");
+                } else if (items.get(position).title.equals(getActivity().getString(R.string.settings))) {
+                    showToast(getActivity().getString(R.string.notImplementedYet));
                 }
             }
         });

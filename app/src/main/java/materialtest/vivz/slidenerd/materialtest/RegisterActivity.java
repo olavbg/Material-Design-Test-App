@@ -69,32 +69,32 @@ public class RegisterActivity extends ActionBarActivity {
         final String repeatPassword = txtRepeatPassword.getText().toString().trim();
 
         if (isEmpty(username)) {
-            showToast("Please enter a username");
+            showToast(getString(R.string.toast_enterUsername));
             txtUsername.requestFocus();
             return;
         }
         if (isEmpty(email)) {
-            showToast("Please enter a email adress");
+            showToast(getString(R.string.toast_enterEmail));
             txtEmail.requestFocus();
             return;
         }
         if (isEmpty(password)) {
-            showToast("Please enter a password");
+            showToast(getString(R.string.toast_enterPassword));
             txtPassword.requestFocus();
             return;
         }
         if (password.length() < 6) {
-            showToast("Your password must contain at least 6 characters..");
+            showToast(getString(R.string.error_passwordAtLeastSixChars));
             txtPassword.requestFocus();
             return;
         }
         if (isEmpty(repeatPassword)) {
-            showToast("Please repeat your password");
+            showToast(getString(R.string.toast_repeatPassword));
             txtRepeatPassword.requestFocus();
             return;
         }
         if (!password.equals(repeatPassword)) {
-            showToast("Your password and repeated passwords do not match..");
+            showToast(getString(R.string.toast_repeatedPasswordNotMatch));
             return;
         }
 
