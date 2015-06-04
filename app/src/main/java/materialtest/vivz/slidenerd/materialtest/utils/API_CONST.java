@@ -25,4 +25,8 @@ public class API_CONST {
         Log.d("Finding movie imdb id", "http://www.omdbapi.com/?i="+imdbId+"&plot=full&r=json");
         return "http://www.omdbapi.com/?i="+imdbId+"&plot=short&r=json";
     }
+
+    public static String omdbAPIPosterURL(final String imdbId){
+        return  "http://img.omdbapi.com/?i=" + imdbId + "&apikey=7490539a&h=720";
+    }
 }

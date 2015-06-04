@@ -27,6 +27,7 @@ public class Movie {
     private String ut = "";
     private String dato = "";
     private String utlanID = "";
+    private String navn = "";
 
     private String err_msg = "";
 
@@ -40,7 +41,7 @@ public class Movie {
         this.format = format;
     }
 
-    public Movie(int filmID, String tittel, String format, String lagtTil, int brukerID, String type, String year, String rated, String released, String runtime, String genre, String director, String writer, String actor, String tagline, String plot, String trailer, String imdb_id, String trakt_id, String poster, String ut, String dato, String utlanID, String err_msg) {
+    public Movie(int filmID, String tittel, String format, String lagtTil, int brukerID, String type, String year, String rated, String released, String runtime, String genre, String director, String writer, String actor, String tagline, String plot, String trailer, String imdb_id, String trakt_id, String poster, String ut, String dato, String utlanID, String navn, String err_msg) {
         setFilmID(filmID);
         setTittel(tittel);
         setFormat(format);
@@ -64,6 +65,7 @@ public class Movie {
         setUt(ut);
         setDato(dato);
         setUtlanID(utlanID);
+        setNavn(navn);
         setErr_msg(err_msg);
     }
 
@@ -120,7 +122,7 @@ public class Movie {
     }
 
     public String getYear() {
-        return year;
+        return year != null && !year.equalsIgnoreCase("0000") ? year : "";
     }
 
     public void setYear(String year) {
@@ -144,7 +146,7 @@ public class Movie {
     }
 
     public String getRuntime() {
-        return runtime;
+        return runtime.contains("min") ? runtime : runtime + " mins";
     }
 
     public void setRuntime(String runtime) {
@@ -259,6 +261,14 @@ public class Movie {
         return err_msg;
     }
 
+    public String getNavn() {
+        return navn;
+    }
+
+    public void setNavn(String navn) {
+        this.navn = navn;
+    }
+
     public void setErr_msg(String err_msg) {
             this.err_msg = err_msg;
     }
@@ -298,6 +308,7 @@ public class Movie {
         if (!utlanID.equalsIgnoreCase(movie.utlanID)) return false;
         if (!writer.equalsIgnoreCase(movie.writer)) return false;
         if (!year.equalsIgnoreCase(movie.year)) return false;
+        if (!navn.equalsIgnoreCase(movie.navn)) return false;
 
         return true;
     }
@@ -324,6 +335,7 @@ public class Movie {
         if (movie.getUtlanID() == null) movie.setUtlanID("");
         if (movie.getWriter() == null) movie.setWriter("");
         if (movie.getYear() == null) movie.setYear("");
+        if (movie.getNavn() == null) movie.setNavn("");
     }
 
     @Override
@@ -351,6 +363,7 @@ public class Movie {
         result = 31 * result + ut.hashCode();
         result = 31 * result + dato.hashCode();
         result = 31 * result + utlanID.hashCode();
+        result = 31 * result + navn.hashCode();
         result = 31 * result + (err_msg != null ? err_msg.hashCode() : 0);
         return result;
     }

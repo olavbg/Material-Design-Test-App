@@ -1,0 +1,279 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="materialtest.vivz.slidenerd.materialtest.MovieDetailsActivity">
+
+    <ImageView
+        android:id="@+id/backgroundImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:contentDescription=""/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:paddingBottom="74dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:paddingBottom="95dp">
+
+            <TextView
+                android:id="@+id/txtTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/accentColor"
+                android:textSize="30sp"/>
+
+            <RelativeLayout
+                android:id="@+id/subHeader"
+                android:layout_below="@+id/txtTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/txtFormat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/txtRated"
+                    android:layout_toRightOf="@+id/txtFormat"
+                    android:layout_toEndOf="@+id/txtFormat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/txtYear"
+                    android:layout_toRightOf="@+id/txtRated"
+                    android:layout_toEndOf="@+id/txtRated"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/txtRuntime"
+                    android:layout_toRightOf="@+id/txtYear"
+                    android:layout_toEndOf="@+id/txtYear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/txtGenre"
+                android:layout_below="@+id/subHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/txtTagline"
+                android:layout_below="@+id/txtGenre"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/lblActor"
+                android:text="Actors"
+                android:layout_below="@+id/txtTagline"
+                android:textColor="@color/accentColor"
+                android:layout_width="match_parent"
+                android:layout_marginTop="12dp"
+                android:textSize="17sp"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/txtActor"
+                android:layout_below="@+id/lblActor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/lblPlot"
+                android:text="Plot"
+                android:layout_below="@+id/txtActor"
+                android:textColor="@color/accentColor"
+                android:layout_marginTop="8dp"
+                android:textSize="17sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/txtPlot"
+                android:layout_below="@+id/lblPlot"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/lblDirector"
+                android:text="Director"
+                android:layout_below="@+id/txtPlot"
+                android:textColor="@color/accentColor"
+                android:layout_marginTop="8dp"
+                android:textSize="17sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/txtDirector"
+                android:layout_below="@+id/lblDirector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/lblWriter"
+                android:text="Writer"
+                android:layout_below="@+id/txtDirector"
+                android:textColor="@color/accentColor"
+                android:layout_marginTop="8dp"
+                android:textSize="17sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/txtWriter"
+                android:layout_below="@+id/lblWriter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/lblDateAdded"
+                android:text="Date added"
+                android:layout_below="@+id/txtWriter"
+                android:textColor="@color/accentColor"
+                android:layout_marginTop="8dp"
+                android:textSize="17sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/txtDateAdded"
+                android:layout_below="@+id/lblDateAdded"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <RelativeLayout
+                android:id="@+id/borrowed_lent_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtDateAdded">
+
+                <TextView
+                    android:id="@+id/lblUtlaan"
+                    android:text="Borrowed/lent"
+                    android:textColor="@color/accentColor"
+                    android:layout_marginTop="8dp"
+                    android:textSize="17sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/txtUtlaan"
+                    android:layout_toRightOf="@+id/lblUtlaan"
+                    android:layout_toEndOf="@+id/lblUtlaan"
+                    android:layout_alignBaseline="@+id/lblUtlaan"
+                    android:textSize="17sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
+        </RelativeLayout>
+    </ScrollView>
+
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="75dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:requiresFadingEdge="horizontal"
+        android:fadingEdgeLength="150dp">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/btnTrailer"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:drawableTop="@android:drawable/ic_media_play"
+                android:background="@android:drawable/screen_background_dark_transparent"
+                android:padding="10dp"
+                android:textSize="10sp"
+                android:text="Trailer"/>
+
+            <Button
+                android:id="@+id/btnAddFromDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_toRightOf="@+id/btnTrailer"
+                android:layout_toEndOf="@+id/btnTrailer"
+                android:drawableTop="@android:drawable/ic_menu_add"
+                android:background="@android:drawable/screen_background_dark_transparent"
+                android:padding="5dp"
+                android:textSize="10sp"
+                android:text="Add to \nlibrary"/>
+
+            <RelativeLayout
+                android:id="@+id/borrowedLentBox"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_toRightOf="@+id/btnAddFromDetails"
+                android:layout_toEndOf="@+id/btnAddFromDetails">
+
+                <Button
+                    android:id="@+id/btnReturned"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:drawableTop="@android:drawable/ic_menu_revert"
+                    android:background="@android:drawable/screen_background_dark_transparent"
+                    android:padding="10dp"
+                    android:textSize="10sp"
+                    android:text="Returned"/>
+
+                <Button
+                    android:id="@+id/btnThisIsBorrowed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_toRightOf="@+id/btnReturned"
+                    android:layout_toEndOf="@+id/btnReturned"
+                    android:drawableTop="@android:drawable/ic_menu_revert"
+                    android:background="@android:drawable/screen_background_dark_transparent"
+                    android:padding="5dp"
+                    android:textSize="10sp"
+                    android:text="This is \nborrowed"/>
+
+                <Button
+                    android:id="@+id/btnThisIsLent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_toRightOf="@+id/btnThisIsBorrowed"
+                    android:layout_toEndOf="@+id/btnThisIsBorrowed"
+                    android:drawableTop="@android:drawable/ic_menu_set_as"
+                    android:background="@android:drawable/screen_background_dark_transparent"
+                    android:padding="5dp"
+                    android:textSize="10sp"
+                    android:text="This is\n lent"/>
+            </RelativeLayout>
+
+            <Button
+                android:id="@+id/btnEdit"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_toRightOf="@+id/borrowedLentBox"
+                android:layout_toEndOf="@+id/borrowedLentBox"
+                android:drawableTop="@android:drawable/ic_menu_edit"
+                android:background="@android:drawable/screen_background_dark_transparent"
+                android:padding="10dp"
+                android:textSize="10sp"
+                android:text="Edit"/>
+
+            <Button
+                android:id="@+id/btnDelete"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_toRightOf="@+id/btnEdit"
+                android:layout_toEndOf="@+id/btnEdit"
+                android:drawableTop="@android:drawable/ic_menu_delete"
+                android:background="@android:drawable/screen_background_dark_transparent"
+                android:padding="10dp"
+                android:textSize="10sp"
+                android:text="Delete"/>
+        </RelativeLayout>
+    </HorizontalScrollView>
+</FrameLayout>

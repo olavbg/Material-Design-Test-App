@@ -61,7 +61,7 @@ public class MovieCardAdapter extends AbstractListAdapter<Movie, MovieCardAdapte
             tagline = (TextView) v.findViewById(R.id.tagline);
             format = (TextView) v.findViewById(R.id.format);
 
-            title.setOnClickListener(new View.OnClickListener() {
+            movieRowLinearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (mOnItemClickListener != null) {

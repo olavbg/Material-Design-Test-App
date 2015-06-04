@@ -94,7 +94,7 @@ public class MovieSearchCardAdapter extends RecyclerView.Adapter<MovieSearchCard
                 } else {
                     final Movie movieBySearchIdent = MovieList.getMovieBySearchIdent(movie.getImdbID(), movie.getFormat());
                     if (movieBySearchIdent != null) {
-                        Helper.deleteMovie(movieBySearchIdent, movieViewHolder.addMovie);
+                        Helper.deleteMovie(movieBySearchIdent, movieViewHolder.addMovie, null);
                     }
                 }
             }

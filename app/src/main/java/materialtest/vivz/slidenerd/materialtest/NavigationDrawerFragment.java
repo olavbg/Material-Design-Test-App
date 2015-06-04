@@ -58,7 +58,9 @@ public class NavigationDrawerFragment extends Fragment {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                navDrawerLoggedInAs.setText("Logged in as " + GlobalVars.loggedInUser.getBrukernavn());
+                if (GlobalVars.loggedInUser != null){
+                    navDrawerLoggedInAs.setText("Logged in as " + GlobalVars.loggedInUser.getBrukernavn());
+                }
                 navDrawerList.setItemChecked(0, true);
                 adapter.notifyDataSetChanged();
             }

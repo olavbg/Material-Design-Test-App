@@ -139,6 +139,15 @@ public class MainActivity extends ActionBarActivity {
         final StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(rotation == OrientationHelper.HORIZONTAL ? 1 : 2, StaggeredGridLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setAdapter(adapter);
+        adapter.setOnItemClickListener(new MovieCardAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Movie movie) {
+                final Intent intent = new Intent(getApplicationContext(), MovieDetailsActivity.class);
+                intent.putExtra("movieId", movie.getFilmID());
+                startActivity(intent);
+            }
+        });
+
 //        recyclerView.setItemAnimator(new SlideInRightAnimator());
 //        recyclerView.setAdapter(new AlphaInAnimationAdapter(adapter));
 
@@ -200,6 +209,7 @@ public class MainActivity extends ActionBarActivity {
         MovieList.removeMovie(event.getMovie());
         adapter.deleteMovie(event.getMovie());
         showToast(event.getMovie().getTittel() + " on " + event.getMovie().getFormat() + " deleted from the cloud");
+        event.finishEvent();
     }
 
     @Override

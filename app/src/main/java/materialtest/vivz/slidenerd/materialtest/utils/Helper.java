@@ -1,5 +1,6 @@
 package materialtest.vivz.slidenerd.materialtest.utils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -20,7 +21,11 @@ import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.Response;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 
@@ -142,7 +147,7 @@ public class Helper {
 
     public static void validateFormat(final Movie movie) {
         for (String format : Types.formats()) {
-            if (movie.getFormat().equalsIgnoreCase(format)){
+            if (movie.getFormat().equalsIgnoreCase(format)) {
                 return;
             }
         }
@@ -151,7 +156,7 @@ public class Helper {
 
     private static void validateFormat(EANSearchedMovie eanSearchedMovie) {
         for (String format : Types.formats()) {
-            if (eanSearchedMovie.getFormat().equalsIgnoreCase(format)){
+            if (eanSearchedMovie.getFormat().equalsIgnoreCase(format)) {
                 return;
             }
         }
@@ -232,7 +237,7 @@ public class Helper {
                 });
     }
 
-    public static void deleteMovie(final Movie movie, final CheckBox checkBox) {
+    public static void deleteMovie(final Movie movie, final CheckBox checkBox, final Callback<Boolean> callback) {
         Ion.with(context).load(API_CONST.LOGIN_URL)
                 .setBodyParameter("tag", API_CONST.DELETE_MOVIE_TAG)
                 .setBodyParameter("movieID", String.valueOf(movie.getFilmID()))
@@ -245,8 +250,9 @@ public class Helper {
                             showToast(context.getString(R.string.error_whenDeletingMovie));
                             hideProgressDialog();
                             checkBox.setChecked(true);
+                            callback.call(false);
                         } else {
-                            EventBus.getDefault().post(new MovieDeletedEvent(movie));
+                            EventBus.getDefault().post(new MovieDeletedEvent(movie, callback));
                         }
                     }
                 });
@@ -309,7 +315,7 @@ public class Helper {
     }
 
     public static void registerNewUser(final String username, final String email, final String password, final Callback<Bruker> callback) {
-        Helper.showProgressDialog(context.getString(R.string.registering));
+        showProgressDialog(context.getString(R.string.registering));
         Ion.with(context).load(API_CONST.LOGIN_URL)
                 .setBodyParameter("tag", API_CONST.REGISTER_TAG)
                 .setBodyParameter("username", username)
@@ -362,5 +368,100 @@ public class Helper {
                 futures.remove(future);
             }
         }
+    }
+
+    @SuppressWarnings("UnusedAssignment")
+    public static String getFriendlyTime(final String dateString) {
+        final StringBuilder sb = new StringBuilder("");
+        try {
+            @SuppressLint("SimpleDateFormat") final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            final Date dateTime;
+            dateTime = sdf.parse(dateString);
+            final Date current = Calendar.getInstance().getTime();
+            long diffInSeconds = (current.getTime() - dateTime.getTime()) / 1000;
+
+    /*long diff[] = new long[]{0, 0, 0, 0};
+    /* sec *  diff[3] = (diffInSeconds >= 60 ? diffInSeconds % 60 : diffInSeconds);
+    /* min *  diff[2] = (diffInSeconds = (diffInSeconds / 60)) >= 60 ? diffInSeconds % 60 : diffInSeconds;
+    /* hours *  diff[1] = (diffInSeconds = (diffInSeconds / 60)) >= 24 ? diffInSeconds % 24 : diffInSeconds;
+    /* days * diff[0] = (diffInSeconds = (diffInSeconds / 24));
+     */
+            long sec = (diffInSeconds >= 60 ? diffInSeconds % 60 : diffInSeconds);
+            long min = (diffInSeconds = (diffInSeconds / 60)) >= 60 ? diffInSeconds % 60 : diffInSeconds;
+            long hrs = (diffInSeconds = (diffInSeconds / 60)) >= 24 ? diffInSeconds % 24 : diffInSeconds;
+            long days = (diffInSeconds = (diffInSeconds / 24)) >= 30 ? diffInSeconds % 30 : diffInSeconds;
+            long months = (diffInSeconds = (diffInSeconds / 30)) >= 12 ? diffInSeconds % 12 : diffInSeconds;
+            long years = (diffInSeconds = (diffInSeconds / 12));
+
+            if (years > 0) {
+                if (years == 1) {
+                    sb.append("a year");
+                } else {
+                    sb.append(years).append(" years");
+                }
+                if (years <= 6 && months > 0) {
+                    if (months == 1) {
+                        sb.append(" and a month");
+                    } else {
+                        sb.append(" and ").append(months).append(" months");
+                    }
+                }
+            } else if (months > 0) {
+                if (months == 1) {
+                    sb.append("a month");
+                } else {
+                    sb.append(months).append(" months");
+                }
+                if (months <= 6 && days > 0) {
+                    if (days == 1) {
+                        sb.append(" and a day");
+                    } else {
+                        sb.append(" and ").append(days).append(" days");
+                    }
+                }
+            } else if (days > 0) {
+                if (days == 1) {
+                    sb.append("a day");
+                } else {
+                    sb.append(days).append(" days");
+                }
+                if (days <= 3 && hrs > 0) {
+                    if (hrs == 1) {
+                        sb.append(" and an hour");
+                    } else {
+                        sb.append(" and ").append(hrs).append(" hours");
+                    }
+                }
+            } else if (hrs > 0) {
+                if (hrs == 1) {
+                    sb.append("an hour");
+                } else {
+                    sb.append(hrs).append(" hours");
+                }
+                if (min > 1) {
+                    sb.append(" and ").append(min).append(" minutes");
+                }
+            } else if (min > 0) {
+                if (min == 1) {
+                    sb.append("a minute");
+                } else {
+                    sb.append(min).append(" minutes");
+                }
+                if (sec > 1) {
+                    sb.append(" and ").append(sec).append(" seconds");
+                }
+            } else {
+                if (sec <= 1) {
+                    sb.append("about a second");
+                } else {
+                    sb.append("about ").append(sec).append(" seconds");
+                }
+            }
+            sb.append(" ago");
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return dateString;
+        }
+        return sb.toString();
     }
 }
